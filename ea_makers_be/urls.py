@@ -1,4 +1,4 @@
-"""ea_copy_be URL Configuration
+"""ea_makers_be URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/2.1/topics/http/urls/
@@ -22,7 +22,7 @@ from django.urls import path, include
 from django.conf.urls import url
 from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 
-from ea_copy_be.authentication import CustomTokenObtainPairView
+from ea_makers_be.authentication import CustomTokenObtainPairView
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -45,5 +45,5 @@ urlpatterns = [
     url(r'api/swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     url(r'api/swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     url(r'api/redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-    url(r'', include('ea_copy_be.ea_copy_be_app.urls'))
+    url(r'', include('ea_makers_be.ea_makers_app.urls'))
 ]

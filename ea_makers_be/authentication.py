@@ -11,5 +11,6 @@ class CustomTokenObtainPairSerializer(TokenObtainSerializer):
         token['email'] = user.email
         token['name'] = user.name
 
+
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
