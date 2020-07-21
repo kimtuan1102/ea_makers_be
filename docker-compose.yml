@@ -5,6 +5,7 @@ services:
     image: ea-makers:0.1
     env_file:
       - .env
+    build: .
     ports:
       - 8000:80
     networks:
