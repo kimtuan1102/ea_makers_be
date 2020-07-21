@@ -1,0 +1,21 @@
+---
+version: "2"
+services:
+  ea-makers:
+    image: ea-makers:0.1
+    env_file:
+      - .env
+    ports:
+      - 8000:80
+    networks:
+      ea-maker-net:
+        ipv4_address: 192.168.6.40
+    restart: always
+
+networks:
+   ea-maker-net:
+     driver: bridge
+     ipam:
+       driver: default
+       config:
+         - subnet: 192.168.6.0/24
