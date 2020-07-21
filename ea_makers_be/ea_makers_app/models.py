@@ -45,9 +45,9 @@ class User(AbstractBaseUser):
     username = models.CharField(unique=True, max_length=255, default="", null=False)
     fullname = models.CharField(max_length=255, default="", null=False)
     phone = models.CharField(max_length=20, default="", null=False)
-    is_superuser = models.BooleanField(default=False)
-    is_admin = models.BooleanField(default=False)
-    is_lead = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False, null=False)
+    is_admin = models.BooleanField(default=False, null=False)
+    is_lead = models.BooleanField(default=False, null=False)
     is_active = models.BooleanField(default=True)
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['fullname']

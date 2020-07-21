@@ -1,15 +1,20 @@
-from rest_framework_simplejwt.serializers import TokenObtainSerializer
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 
-class CustomTokenObtainPairSerializer(TokenObtainSerializer):
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
 
-        # Add token claim
-        token['email'] = user.email
-        token['name'] = user.name
+        # Add custom claims
+        token['username'] = user.username
+        token['fullname'] = user.fullname
+        token['is_superuser'] = user.is_superuser
+        token['is_admin'] = user.is_admin
+        token['is_lead'] = user.is_lead
+
+        return token
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):

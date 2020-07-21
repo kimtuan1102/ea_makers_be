@@ -120,7 +120,7 @@ REST_FRAMEWORK = {
     # 'PAGE_SIZE': 100,
 }
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
     'USER_ID_CLAIM': 'user_id'
 }
 # Internationalization
