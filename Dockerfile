@@ -11,7 +11,7 @@ FROM ubuntu:18.04
 #    LANG=C.UTF-8
 
 ### Install apt packages and Set UTC
-RUN apt-get update && apt-get install -y software-properties-common debconf-utils build-essential python3 python3-dev python3-pip supervisor nginx libmysqlclient-dev gettext libssl-dev
+RUN apt-get update && apt-get install -y software-properties-common debconf-utils build-essential python3 python3-dev python3-pip supervisor nginx libmysqlclient-dev gettext libssl-dev gunicorn
 
 # Set alias for 'supervisorctl'
 RUN echo "alias s='supervisorctl'" >> ~/.bashrc
@@ -19,7 +19,7 @@ RUN echo "alias s='supervisorctl'" >> ~/.bashrc
 WORKDIR /app/source
 
 ### COPY dirs and files to run collectstatic
-COPY ../ea_makers_be ./
+COPY .. ./
 RUN pip3 install pip --upgrade && pip install -r requirements.txt
 RUN python3 scripts/manage.py collectstatic --no-input && mv static-root/ /var/www/html/static/
 
