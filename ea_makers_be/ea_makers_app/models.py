@@ -95,5 +95,26 @@ class Transaction(models.Model):
         managed = True
         db_table = 'transaction'
 
-# class AccountMT4(models.Model):
-#     id = models.IntegerField(u)
+
+class ServerInfo(models.Model):
+    ip = models.CharField(max_length=255, blank=False, null=False, default='ip')
+    user_name = models.CharField(max_length=255, blank=False, null=False, default='user_name')
+    pwd = models.CharField(max_length=255, blank=False, null=False, default='pwd')
+    created = models.DateTimeField(auto_now_add=True, db_column='created')
+
+    class Meta:
+        managed = True
+        db_table = 'server_info'
+
+
+class AccountMT4(models.Model):
+    id = models.IntegerField(primary_key=True, db_column='id')
+    pwd = models.CharField(max_length=255, blank=False, null=False, db_column='pwd')
+    name = models.TextField(max_length=255, blank=False, null=False, db_column='name')
+    is_parent = models.BooleanField(blank=False, null=False, default=False, db_column='is_parent')
+    server = models.ForeignKey(ServerInfo, on_delete=models.DO_NOTHING, blank=True, null=True, db_column='server')
+    created = models.DateTimeField(auto_now_add=True, db_column='created')
+
+    class Meta:
+        managed = True
+        db_table = 'account_mt4'
