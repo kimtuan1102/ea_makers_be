@@ -3,12 +3,20 @@ from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.utils.translation import ugettext_lazy as _
 
-
-# User Auth Model
+# Choices type
+TRANSACTION_TYPE = [
+    (0, 'Deposit'),  # Nap tien
+    (1, 'Withdrawal'),  # Rut tien
+    (2, 'Commission'),  # Tien hoa hong
+]
+TRANSACTION_STATUS = [
+    (0, 'Pending'),  # Cho duyet
+    (1, 'Completed'),  # Da duyet
+]
 
 
 class MyUserManager(BaseUserManager):
-    def create_user(self, username, fullname ,password=None):
+    def create_user(self, username, fullname, password=None):
         """
         Creates and saves a User with the given email, date of
         birth and password.
@@ -18,7 +26,7 @@ class MyUserManager(BaseUserManager):
 
         user = self.model(
             username=username,
-            fullname = fullname
+            fullname=fullname
         )
 
         user.set_password(password)
@@ -73,3 +81,19 @@ class User(AbstractBaseUser):
         "Is the user a member of staff?"
         # Simplest possible answer: All admins are staff
         return self.is_superuser
+
+
+class Transaction(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user', db_column='user')
+    type = models.IntegerField(choices=TRANSACTION_TYPE, blank=False, null=False, db_column='type')
+    amount = models.FloatField(blank=False, null=False, db_column='amount')
+    status = models.IntegerField(choices=TRANSACTION_STATUS, blank=False, null=False, db_column='status')
+    extra_info = models.TextField(max_length=3000, blank=True, null=True, db_column='extra_info')
+    created = models.DateTimeField(auto_now_add=True, db_column='created')
+
+    class Meta:
+        managed = True
+        db_table = 'transaction'
+
+# class AccountMT4(models.Model):
+#     id = models.IntegerField(u)
