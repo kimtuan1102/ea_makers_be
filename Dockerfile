@@ -19,7 +19,7 @@ RUN echo "alias s='supervisorctl'" >> ~/.bashrc
 WORKDIR /app/source
 
 ### COPY dirs and files to run collectstatic
-COPY ./ea_makers_be ./
+COPY ../ea_makers_be ./
 RUN pip3 install pip --upgrade && pip install -r requirements.txt
 RUN python3 scripts/manage.py collectstatic --no-input && mv static-root/ /var/www/html/static/
 
