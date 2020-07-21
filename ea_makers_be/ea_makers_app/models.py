@@ -1,7 +1,5 @@
 from django.db import models
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
-from django.contrib.auth.models import PermissionsMixin
-from django.utils.translation import ugettext_lazy as _
 
 # Choices type
 TRANSACTION_TYPE = [
@@ -12,6 +10,11 @@ TRANSACTION_TYPE = [
 TRANSACTION_STATUS = [
     (0, 'Pending'),  # Cho duyet
     (1, 'Completed'),  # Da duyet
+]
+ACCOUNT_HISTORY_STATUS = [
+    (0, 'Win'),
+    (1, 'Loss'),
+    (2, 'Draw'),
 ]
 
 
@@ -118,3 +121,8 @@ class AccountMT4(models.Model):
     class Meta:
         managed = True
         db_table = 'account_mt4'
+
+
+class AccountHistory(models.Model):
+    account = models.ForeignKey(AccountMT4, on_delete=models.CASCADE, db_column='account')
+    amount = models.FloatField(blank=False, null=False, db_column='amount')
