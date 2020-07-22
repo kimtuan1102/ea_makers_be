@@ -6,15 +6,27 @@ TRANSACTION_TYPE = [
     (0, 'Deposit'),  # Nap tien
     (1, 'Withdrawal'),  # Rut tien
     (2, 'Commission'),  # Tien hoa hong
+    (3, 'OrderPackage'),  # Mua goi
 ]
 TRANSACTION_STATUS = [
     (0, 'Pending'),  # Cho duyet
     (1, 'Completed'),  # Da duyet
+    (2, 'Canceled'),  # Huy
 ]
 ACCOUNT_HISTORY_STATUS = [
     (0, 'Win'),
     (1, 'Loss'),
     (2, 'Draw'),
+]
+ORDER_TYPE = [
+    (0, 'SelfOrder'),
+    (1, 'EACopy'),
+]
+ACCOUNT_CONFIG_STATUS = [
+    (0, 'Wait for creation'),
+    (1, 'Creating'),
+    (2, 'Running'),
+    (3, 'Paused'),
 ]
 
 
@@ -100,9 +112,9 @@ class Transaction(models.Model):
 
 
 class ServerInfo(models.Model):
-    ip = models.CharField(max_length=255, blank=False, null=False, default='ip')
-    user_name = models.CharField(max_length=255, blank=False, null=False, default='user_name')
-    pwd = models.CharField(max_length=255, blank=False, null=False, default='pwd')
+    ip = models.CharField(max_length=255, blank=False, null=False, db_column='ip')
+    user_name = models.CharField(max_length=255, blank=False, null=False, db_column='user_name')
+    pwd = models.CharField(max_length=255, blank=False, null=False, db_column='pwd')
     created = models.DateTimeField(auto_now_add=True, db_column='created')
 
     class Meta:
@@ -110,12 +122,25 @@ class ServerInfo(models.Model):
         db_table = 'server_info'
 
 
+class Office(models.Model):
+    name = models.CharField(max_length=255, blank=False, null=False, db_column='name')
+    created = models.DateTimeField(auto_now_add=True, db_column='created')
+    updated = models.DateTimeField(auto_now=True, db_column='updated')
+
+    class Meta:
+        managed = True
+        db_table = 'office'
+
+
 class AccountMT4(models.Model):
     id = models.IntegerField(primary_key=True, db_column='id')
     pwd = models.CharField(max_length=255, blank=False, null=False, db_column='pwd')
     name = models.TextField(max_length=255, blank=False, null=False, db_column='name')
+    office = models.ForeignKey(Office, related_name='office', on_delete=models.CASCADE, blank=False, null=False,
+                               db_column='office')
     is_parent = models.BooleanField(blank=False, null=False, default=False, db_column='is_parent')
-    server = models.ForeignKey(ServerInfo, on_delete=models.DO_NOTHING, blank=True, null=True, db_column='server')
+    server = models.ForeignKey(ServerInfo, related_name='server', on_delete=models.DO_NOTHING, blank=True, null=True,
+                               db_column='server')
     created = models.DateTimeField(auto_now_add=True, db_column='created')
 
     class Meta:
@@ -126,3 +151,35 @@ class AccountMT4(models.Model):
 class AccountHistory(models.Model):
     account = models.ForeignKey(AccountMT4, on_delete=models.CASCADE, db_column='account')
     amount = models.FloatField(blank=False, null=False, db_column='amount')
+    symbol = models.CharField(max_length=255, blank=False, null=False, db_column='symbol')
+    type = models.IntegerField(choices=ORDER_TYPE, db_column='type', blank=False, null=False)
+    status = models.IntegerField(choices=ACCOUNT_HISTORY_STATUS, db_column='status', blank=False, null=False)
+    open_time = models.DateTimeField(db_column='open_time')
+    close_time = models.DateTimeField(db_column='close_time')
+
+    class Meta:
+        managed = True
+        db_table = 'account_history'
+
+
+class Package(models.Model):
+    name = models.CharField(max_length=255, blank=False, null=False, db_column='name')
+    price = models.FloatField(db_column='price', blank=False, null=False)
+    commission = models.FloatField(db_column='commission', blank=False, null=False)
+
+    class Meta:
+        managed = True
+        db_table = 'package'
+
+
+class AccountConfig(models.Model):
+    account = models.ForeignKey(AccountMT4, on_delete=models.CASCADE, related_name='account', db_column='account')
+    parent = models.ForeignKey(AccountMT4, on_delete=models.CASCADE, related_name='parent', db_column='parent')
+    status = models.IntegerField(choices=ACCOUNT_CONFIG_STATUS, db_column='status', default=0)
+    package = models.ForeignKey(Package, on_delete=models.CASCADE, related_name='package', db_column='package')
+    created = models.DateTimeField(auto_now_add=True, db_column='created')
+    updated = models.DateTimeField(auto_now=True, db_column='updated')
+
+    class Meta:
+        managed = True
+        db_table = 'account_config'
