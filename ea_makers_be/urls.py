@@ -26,9 +26,9 @@ from ea_makers_be.authentication import CustomTokenObtainPairView
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Experts Back End",
+        title="EA Makers API",
         default_version='v1',
-        description="Rating API",
+        description="EA Makers API",
         terms_of_service="https://fpt.ai/terms-of-use.txt",
         contact=openapi.Contact(email="tuantk2@fpt.com.vn"),
         license=openapi.License(name="BSD License"),
