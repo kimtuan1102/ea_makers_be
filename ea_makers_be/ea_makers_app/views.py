@@ -13,7 +13,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
     authentication_classes = (JWTAuthentication,)
 
     def get_queryset(self):
-        return Transaction.objects.filter(user_id=self.request.user.id)
+        return Transaction.objects.all()
 
 
 class ServerInfoViewSet(viewsets.ModelViewSet):

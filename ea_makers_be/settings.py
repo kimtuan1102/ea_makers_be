@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'rest_framework',
     'ea_makers_be.ea_makers_app',
+    'ea_makers_be',
     'corsheaders'
 ]
 
@@ -122,7 +123,6 @@ REST_FRAMEWORK = {
 }
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
-    'USER_ID_CLAIM': 'user_id'
 }
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
