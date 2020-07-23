@@ -1,12 +1,13 @@
 # Create your views here.
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .models import Transaction, ServerInfo, Office, AccountMT4, AccountHistory, Package, AccountConfig, User
 from .serializers import TransactionSerializer, ServerInfoSerializer, OfficeSerializer, AccountMT4Serializer, \
-    AccountHistorySerializer, PackageSerializer, AccountConfigSerializer
+    AccountHistorySerializer, PackageSerializer, AccountConfigSerializer, UserSerializer
 from .permissions import TransactionPermission, IsAdminPermission, AccountConfigPermission
 
 
@@ -124,3 +125,16 @@ def transaction_reject(request, id):
         return Response({'code': 200, 'message': 'Reject transaction success'})
     except Transaction.DoesNotExist:
         return Response({'code': 404, 'message': 'transaction does not exists'}, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def user_info(request):
+    try:
+        user = User.objects.get(pk=request.user.id)
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
+
+    except User.DoesNotExist:
+        return Response({'code': 404, 'message': 'User does not exists'}, status=status.HTTP_404_NOT_FOUND)
