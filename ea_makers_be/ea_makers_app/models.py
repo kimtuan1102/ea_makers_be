@@ -104,7 +104,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Transaction(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user', db_column='user')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='trans_user', db_column='user')
     type = models.IntegerField(choices=TRANSACTION_TYPE, blank=False, null=False, db_column='type')
     amount = models.FloatField(blank=False, null=False, db_column='amount')
     status = models.IntegerField(choices=TRANSACTION_STATUS, blank=False, null=False, db_column='status', default=0)
@@ -178,6 +178,7 @@ class Package(models.Model):
 
 
 class AccountConfig(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='acc_config_user', db_column='user')
     account = models.ForeignKey(AccountMT4, on_delete=models.CASCADE, related_name='account', db_column='account')
     parent = models.ForeignKey(AccountMT4, on_delete=models.CASCADE, related_name='parent', db_column='parent')
     status = models.IntegerField(choices=ACCOUNT_CONFIG_STATUS, db_column='status', default=0)

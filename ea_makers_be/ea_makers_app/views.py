@@ -7,7 +7,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from .models import Transaction, ServerInfo, Office, AccountMT4, AccountHistory, Package, AccountConfig, User
 from .serializers import TransactionSerializer, ServerInfoSerializer, OfficeSerializer, AccountMT4Serializer, \
     AccountHistorySerializer, PackageSerializer, AccountConfigSerializer
-from .permissions import TransactionPermission, IsAdminPermission
+from .permissions import TransactionPermission, IsAdminPermission, AccountConfigPermission
 
 
 class TransactionViewSet(viewsets.ModelViewSet):
@@ -60,6 +60,14 @@ class AccountConfigViewSet(viewsets.ModelViewSet):
     queryset = AccountConfig.objects.all()
     serializer_class = AccountConfigSerializer
     authentication_classes = (JWTAuthentication,)
+    permission_classes = [AccountConfigPermission]
+
+    # def get_queryset(self):
+    #     if self.request.user.is_anonymous is not True:
+    #         if self.request.user.is_admin is True or self.request.user.is_superuser:
+    #             return AccountConfig.objects.all()
+    #         else:
+    #             return AccountConfig.objects.filter(u=self.request.user.id)
 
 
 @api_view(['POST'])
