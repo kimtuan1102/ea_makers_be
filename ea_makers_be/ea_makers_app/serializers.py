@@ -12,6 +12,9 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class TransactionSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source='user.id')
+    status = serializers.ReadOnlyField()
+
     class Meta:
         model = Transaction
         fields = '__all__'

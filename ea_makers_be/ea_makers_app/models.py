@@ -11,8 +11,8 @@ TRANSACTION_TYPE = [
 ]
 TRANSACTION_STATUS = [
     (0, 'Pending'),  # Cho duyet
-    (1, 'Completed'),  # Da duyet
-    (2, 'Canceled'),  # Huy
+    (1, 'Approved'),  # Da duyet
+    (2, 'Rejected'),  # Huy
 ]
 ACCOUNT_HISTORY_STATUS = [
     (0, 'Win'),
@@ -107,7 +107,7 @@ class Transaction(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user', db_column='user')
     type = models.IntegerField(choices=TRANSACTION_TYPE, blank=False, null=False, db_column='type')
     amount = models.FloatField(blank=False, null=False, db_column='amount')
-    status = models.IntegerField(choices=TRANSACTION_STATUS, blank=False, null=False, db_column='status')
+    status = models.IntegerField(choices=TRANSACTION_STATUS, blank=False, null=False, db_column='status', default=0)
     extra_info = models.TextField(max_length=3000, blank=True, null=True, db_column='extra_info')
     created = models.DateTimeField(auto_now_add=True, db_column='created')
 
