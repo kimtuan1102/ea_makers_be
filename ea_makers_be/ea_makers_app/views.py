@@ -1,15 +1,13 @@
 # Create your views here.
-from django.db.models import F
 from rest_framework import viewsets, status
-from rest_framework.decorators import api_view, schema
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
-from rest_framework.schemas import AutoSchema
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .models import Transaction, ServerInfo, Office, AccountMT4, AccountHistory, Package, AccountConfig, User
 from .serializers import TransactionSerializer, ServerInfoSerializer, OfficeSerializer, AccountMT4Serializer, \
     AccountHistorySerializer, PackageSerializer, AccountConfigSerializer
-from .permissions import TransactionPermission
+from .permissions import TransactionPermission, IsAdminPermission
 
 
 class TransactionViewSet(viewsets.ModelViewSet):
@@ -65,6 +63,8 @@ class AccountConfigViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAdminPermission])
 def transaction_approve(request, id):
     #
     try:
@@ -103,5 +103,16 @@ def transaction_approve(request, id):
                     user.balance = user.balance - transaction.amount
                     return Response({'code': 200, 'message': 'Approve transaction success'})
         return Response({'code': 400, 'message': 'Status is not pending or invalid transaction type'})
+    except Transaction.DoesNotExist:
+        return Response({'code': 404, 'message': 'transaction does not exists'}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAdminPermission])
+def transaction_reject(request, id):
+    try:
+        Transaction.objects.filter(id=id).update(status=2)
+        return Response({'code': 200, 'message': 'Reject transaction success'})
     except Transaction.DoesNotExist:
         return Response({'code': 404, 'message': 'transaction does not exists'}, status=status.HTTP_200_OK)
