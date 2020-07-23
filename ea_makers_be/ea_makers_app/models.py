@@ -183,6 +183,7 @@ class AccountConfig(models.Model):
     parent = models.ForeignKey(AccountMT4, on_delete=models.CASCADE, related_name='parent', db_column='parent')
     status = models.IntegerField(choices=ACCOUNT_CONFIG_STATUS, db_column='status', default=0)
     package = models.ForeignKey(Package, on_delete=models.CASCADE, related_name='package', db_column='package')
+    percent_copy = models.FloatField(default=1, db_column='percent_copy')
     created = models.DateTimeField(auto_now_add=True, db_column='created')
     updated = models.DateTimeField(auto_now=True, db_column='updated')
 

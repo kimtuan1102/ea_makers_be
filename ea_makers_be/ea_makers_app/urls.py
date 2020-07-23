@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import TransactionViewSet, ServerInfoViewSet, OfficeViewSet, AccountMT4ViewSet, AccountHistoryViewSet, \
-    PackageViewSet, AccountConfigViewSet, transaction_approve, transaction_reject, user_info
+    PackageViewSet, AccountConfigViewSet, transaction_approve, transaction_reject, user_info, ea_license
 
 router = DefaultRouter()
 router.register(r'transaction', TransactionViewSet)
@@ -16,5 +16,6 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path(r'api/transaction/approve/<int:id>', transaction_approve),
     path(r'api/transaction/reject/<int:id>', transaction_reject),
-    path(r'api/user-info', user_info)
+    path(r'api/user-info', user_info),
+    path(r'api/ea-license/<int:id>', ea_license)
 ]

@@ -8,7 +8,7 @@ from ea_makers_be.ea_makers_app.models import User, Transaction, ServerInfo, Off
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'fullname']
+        fields = ['id', 'username', 'fullname', 'balance']
 
 
 class TransactionSerializer(serializers.ModelSerializer):

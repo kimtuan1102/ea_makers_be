@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.core.cache import cache
 
 from .models import Transaction, ServerInfo, Office, AccountMT4, AccountHistory, Package, AccountConfig, User
 from .serializers import TransactionSerializer, ServerInfoSerializer, OfficeSerializer, AccountMT4Serializer, \
@@ -137,4 +138,17 @@ def user_info(request):
         return Response(serializer.data)
 
     except User.DoesNotExist:
+        return Response({'code': 404, 'message': 'User does not exists'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
+def ea_license(request, id):
+    try:
+        if cache.get(id) is None:
+            return Response({'code': 404, 'message': 'User does not exists'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            account = AccountConfig.objects.get(account__id=id)
+            return Response({'is_verified': True, 'percent': account.percent_copy, 'parent_id': account.parent.id},
+                            status=status.HTTP_200_OK)
+    except AccountConfig.DoesNotExist:
         return Response({'code': 404, 'message': 'User does not exists'}, status=status.HTTP_404_NOT_FOUND)
