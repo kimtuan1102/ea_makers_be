@@ -33,6 +33,13 @@ class OfficeSerializer(serializers.ModelSerializer):
 
 
 class AccountMT4Serializer(serializers.ModelSerializer):
+    is_parent = serializers.ReadOnlyField()
+
+    def create(self, validated_data):
+        # Tạo tài khoản cho khách đăng nhập
+        # User.objects.create_user()
+        AccountMT4.objects.create(**validated_data)
+
     class Meta:
         model = AccountMT4
         fields = '__all__'
@@ -51,6 +58,8 @@ class PackageSerializer(serializers.ModelSerializer):
 
 
 class AccountConfigSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source='user.id')
+
     class Meta:
         model = AccountConfig
         fields = '__all__'

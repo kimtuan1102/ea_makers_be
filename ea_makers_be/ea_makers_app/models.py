@@ -128,7 +128,7 @@ class ServerInfo(models.Model):
 
 
 class Office(models.Model):
-    name = models.CharField(max_length=255, blank=False, null=False, db_column='name')
+    name = models.TextField(max_length=255, blank=False, null=False, db_column='name')
     created = models.DateTimeField(auto_now_add=True, db_column='created')
     updated = models.DateTimeField(auto_now=True, db_column='updated')
 
@@ -144,8 +144,6 @@ class AccountMT4(models.Model):
     office = models.ForeignKey(Office, related_name='office', on_delete=models.CASCADE, blank=False, null=False,
                                db_column='office')
     is_parent = models.BooleanField(blank=False, null=False, default=False, db_column='is_parent')
-    server = models.ForeignKey(ServerInfo, related_name='server', on_delete=models.DO_NOTHING, blank=True, null=True,
-                               db_column='server')
     created = models.DateTimeField(auto_now_add=True, db_column='created')
 
     class Meta:
@@ -180,10 +178,13 @@ class Package(models.Model):
 class AccountConfig(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='acc_conf_user', db_column='user')
     account = models.ForeignKey(AccountMT4, on_delete=models.CASCADE, related_name='account', db_column='account')
-    parent = models.ForeignKey(AccountMT4, on_delete=models.CASCADE, related_name='parent', db_column='parent')
+    parent = models.ForeignKey(AccountMT4, on_delete=models.CASCADE, related_name='parent', blank=True, null=True,
+                               db_column='parent')
     status = models.IntegerField(choices=ACCOUNT_CONFIG_STATUS, db_column='status', default=0)
     package = models.ForeignKey(Package, on_delete=models.CASCADE, related_name='package', db_column='package')
-    percent_copy = models.FloatField(default=1, db_column='percent_copy')
+    percent_copy = models.FloatField(blank=False, null=False, default=1, db_column='percent_copy')
+    server = models.ForeignKey(ServerInfo, related_name='server', on_delete=models.DO_NOTHING, blank=True, null=True,
+                               db_column='server')
     created = models.DateTimeField(auto_now_add=True, db_column='created')
     updated = models.DateTimeField(auto_now=True, db_column='updated')
 

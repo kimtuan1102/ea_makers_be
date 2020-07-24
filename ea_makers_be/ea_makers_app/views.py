@@ -28,18 +28,6 @@ class TransactionViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
 
-class ServerInfoViewSet(viewsets.ModelViewSet):
-    queryset = ServerInfo.objects.all()
-    serializer_class = ServerInfoSerializer
-    authentication_classes = (JWTAuthentication,)
-
-
-class OfficeViewSet(viewsets.ModelViewSet):
-    queryset = Office.objects.all()
-    serializer_class = OfficeSerializer
-    authentication_classes = (JWTAuthentication,)
-
-
 class AccountMT4ViewSet(viewsets.ModelViewSet):
     queryset = AccountMT4.objects.all()
     serializer_class = AccountMT4Serializer
@@ -49,12 +37,6 @@ class AccountMT4ViewSet(viewsets.ModelViewSet):
 class AccountHistoryViewSet(viewsets.ModelViewSet):
     queryset = AccountHistory.objects.all()
     serializer_class = AccountHistorySerializer
-    authentication_classes = (JWTAuthentication,)
-
-
-class PackageViewSet(viewsets.ModelViewSet):
-    queryset = Package.objects.all()
-    serializer_class = PackageSerializer
     authentication_classes = (JWTAuthentication,)
 
 
@@ -70,6 +52,9 @@ class AccountConfigViewSet(viewsets.ModelViewSet):
                 return AccountConfig.objects.all()
             else:
                 return AccountConfig.objects.filter(user_id=self.request.user.id)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 
 @api_view(['POST'])
