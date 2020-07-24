@@ -135,7 +135,7 @@ class ServerInfo(models.Model):
 
 
 class Office(models.Model):
-    name = models.TextField(max_length=255, blank=False, null=False, db_column='name')
+    name = models.CharField(max_length=255, blank=False, null=False, db_column='name')
     created = models.DateTimeField(auto_now_add=True, db_column='created')
     updated = models.DateTimeField(auto_now=True, db_column='updated')
 
