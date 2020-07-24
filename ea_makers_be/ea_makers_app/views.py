@@ -57,6 +57,20 @@ class AccountConfigViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
 
+class PackageViewSet(viewsets.ModelViewSet):
+    queryset = Package.objects.all()
+    serializer_class = PackageSerializer
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = [IsAuthenticated]
+
+
+class ServerInfoViewSet(viewsets.ModelViewSet):
+    queryset = ServerInfo.objects.all()
+    serializer_class = ServerInfoSerializer
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = [IsAuthenticated]
+
+
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAdminPermission])

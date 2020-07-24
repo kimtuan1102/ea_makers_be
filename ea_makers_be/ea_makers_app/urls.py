@@ -1,14 +1,16 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import TransactionViewSet, AccountMT4ViewSet, AccountHistoryViewSet, \
-     AccountConfigViewSet, transaction_approve, transaction_reject, user_info, ea_license
+    AccountConfigViewSet, transaction_approve, transaction_reject, user_info, ea_license, PackageViewSet, \
+    ServerInfoViewSet
 
 router = DefaultRouter()
 router.register(r'transaction', TransactionViewSet)
 router.register(r'account-mt4', AccountMT4ViewSet)
 router.register(r'account-history', AccountHistoryViewSet)
 router.register(r'account-config', AccountConfigViewSet)
-
+router.register(r'package', PackageViewSet)
+router.register(r'server-info', ServerInfoViewSet)
 urlpatterns = [
     path('api/', include(router.urls)),
     path(r'api/transaction/approve/<int:id>', transaction_approve),
