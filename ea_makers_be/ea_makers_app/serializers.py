@@ -37,8 +37,9 @@ class AccountMT4Serializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         # Tạo tài khoản cho khách đăng nhập
-        # User.objects.create_user()
-        AccountMT4.objects.create(**validated_data)
+        account_mt4 = AccountMT4.objects.create(**validated_data)
+        User.objects.create_user(account_mt4.id, account_mt4.name, account_mt4.pwd)
+        return account_mt4
 
     class Meta:
         model = AccountMT4
