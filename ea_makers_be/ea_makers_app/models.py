@@ -37,6 +37,7 @@ PACKAGE_TYPE = [
     (12, '12 month')
 ]
 
+
 class MyUserManager(BaseUserManager):
     def create_user(self, username, fullname, password=None):
         """
@@ -175,7 +176,7 @@ class Package(models.Model):
     name = models.CharField(max_length=255, blank=False, null=False, db_column='name')
     price = models.FloatField(db_column='price', blank=False, null=False)
     commission = models.FloatField(db_column='commission', blank=False, null=False)
-    month = models.IntegerField(choices=PACKAGE_TYPE, blank=False, null=False, db_column='month')
+    month = models.IntegerField(choices=PACKAGE_TYPE, default=1, blank=False, null=False, db_column='month')
 
     class Meta:
         managed = True
