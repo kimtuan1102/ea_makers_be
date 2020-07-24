@@ -1,4 +1,7 @@
 # Create your views here.
+import json
+
+from django.db.models import F
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -9,7 +12,7 @@ from django.core.cache import cache
 from .models import Transaction, ServerInfo, Office, AccountMT4, AccountHistory, Package, AccountConfig, User
 from .serializers import TransactionSerializer, ServerInfoSerializer, OfficeSerializer, AccountMT4Serializer, \
     AccountHistorySerializer, PackageSerializer, AccountConfigSerializer, UserSerializer
-from .permissions import TransactionPermission, IsAdminPermission, AccountConfigPermission
+from .permissions import TransactionPermission, IsAdminPermission, AccountConfigPermission, IsSuperUserPermission
 
 
 class TransactionViewSet(viewsets.ModelViewSet):
@@ -147,7 +150,65 @@ def ea_license(request, id):
             return Response({'code': 404, 'message': 'User does not exists'}, status=status.HTTP_404_NOT_FOUND)
         else:
             account = AccountConfig.objects.get(account__id=id)
-            return Response({'is_verified': True, 'percent': account.percent_copy, 'parent_id': account.parent.id},
-                            status=status.HTTP_200_OK)
+            if account.status is 2:
+                return Response({'is_verified': True, 'percent': account.percent_copy, 'parent_id': account.parent.id},
+                                status=status.HTTP_200_OK)
+            else:
+                return Response({'code': 400, 'message': 'Status not is runing'}, status=status.HTTP_400_BAD_REQUEST)
+
     except AccountConfig.DoesNotExist:
         return Response({'code': 404, 'message': 'User does not exists'}, status=status.HTTP_404_NOT_FOUND)
+
+
+# Admin duyệt tạo máy
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAdminPermission])
+def account_config_create(request, id):
+    body = json.loads(request.body.decode('utf-8'))
+    parent = body['parent']
+    if parent is None:
+        return Response({'code': 400, 'message': 'Missing parent field'}, status.HTTP_400_BAD_REQUEST)
+    else:
+        # Cập nhật trạng thái và tài khoản master
+        account_config = AccountConfig.objects.get(pk=id)
+        account_config.status = 1
+        account_config.parent = AccountMT4.objects.get(pk=parent)
+        account_config.save()
+        # Tạo cache
+        exp = account_config.package.month * 30 * 24 * 3600
+        cache.set(account_config.account.id, 'xxxxx', exp);
+        return Response({'code': 200, 'message': 'Success'})
+
+# Admin hủy config
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAdminPermission])
+def account_config_reject(request, id):
+    try:
+        AccountConfig.objects.filter(pk=id).update(status=4)
+        return Response({'code': 200, 'message': 'Success'})
+    except AccountConfig.DoesNotExist:
+        return Response({'code': 404, 'message': 'Account config does not exist'}, status=status.HTTP_200_OK)
+
+# Super admin xác nhận đã tạo máy
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsSuperUserPermission])
+def account_config_complete(request, id):
+    account_config = AccountConfig.objects.get(pk=id)
+    if account_config.status is not 1:
+        return Response({'code': 400, 'message': 'Status is not creating'}, status.HTTP_400_BAD_REQUEST)
+    body = json.loads(request.body.decode('utf-8'))
+    server = body['server']
+    if server is None:
+        return Response({'code': 400, 'message': 'Missing parent field'}, status.HTTP_400_BAD_REQUEST)
+    else:
+        # Cập nhật thông tin server
+        account_config.status = 2
+        account_config.server = ServerInfo.objects.get(pk=server)
+        account_config.save()
+        # Cộng tiền cho super admin
+        price = 30 + (account_config.package.month - 1) * 25
+        User.objects.filter(is_superuser=True).update(balance=F('balance') + price)
+        return Response({'code': 200, 'message': 'Success'}, status.HTTP_200_OK)

@@ -28,8 +28,14 @@ ACCOUNT_CONFIG_STATUS = [
     (1, 'Creating'),
     (2, 'Running'),
     (3, 'Paused'),
+    (4, 'Rejected')
 ]
-
+PACKAGE_TYPE = [
+    (1, '1 month'),
+    (3, '3 month'),
+    (6, '6 month'),
+    (12, '12 month')
+]
 
 class MyUserManager(BaseUserManager):
     def create_user(self, username, fullname, password=None):
@@ -169,6 +175,7 @@ class Package(models.Model):
     name = models.CharField(max_length=255, blank=False, null=False, db_column='name')
     price = models.FloatField(db_column='price', blank=False, null=False)
     commission = models.FloatField(db_column='commission', blank=False, null=False)
+    month = models.IntegerField(choices=PACKAGE_TYPE, blank=False, null=False, db_column='month')
 
     class Meta:
         managed = True

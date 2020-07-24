@@ -60,6 +60,8 @@ class PackageSerializer(serializers.ModelSerializer):
 
 class AccountConfigSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source='user.id')
+    status = serializers.ReadOnlyField()
+    server = serializers.ReadOnlyField()
 
     class Meta:
         model = AccountConfig
