@@ -88,6 +88,7 @@ def transaction_approve(request, id):
             if transaction.type is 0:
                 # Cộng tiền cho lead
                 user.balance = user.balance + transaction.amount
+                user.save()
                 # Cập nhật trạng thái transaction
                 transaction.status = 1
                 transaction.save()
@@ -100,11 +101,13 @@ def transaction_approve(request, id):
                 else:
                     # Trừ tiền và success
                     user.balance = user.balance - transaction.amount
+                    user.save()
                     return Response({'code': 200, 'message': 'Approve transaction success'})
             # Tiền hoa hồng
             elif transaction.type is 2:
                 # Cộng tiền và success
                 user.balance = user.balance + transaction.amount
+                user.save()
                 return Response({'code': 200, 'message': 'Approve transaction success'})
             # Mua gói
             elif transaction.type is 3:
@@ -114,6 +117,7 @@ def transaction_approve(request, id):
                 else:
                     # Trừ tiền lead và success
                     user.balance = user.balance - transaction.amount
+                    user.save()
                     return Response({'code': 200, 'message': 'Approve transaction success'})
         return Response({'code': 400, 'message': 'Status is not pending or invalid transaction type'})
     except Transaction.DoesNotExist:
