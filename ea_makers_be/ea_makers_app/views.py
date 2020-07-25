@@ -185,6 +185,7 @@ def account_config_create(request, id):
         cache.set(account_config.account.id, 'xxxxx', exp);
         return Response({'code': 200, 'message': 'Success'})
 
+
 # Admin hủy config
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
@@ -195,6 +196,7 @@ def account_config_reject(request, id):
         return Response({'code': 200, 'message': 'Success'})
     except AccountConfig.DoesNotExist:
         return Response({'code': 404, 'message': 'Account config does not exist'}, status=status.HTTP_200_OK)
+
 
 # Super admin xác nhận đã tạo máy
 @api_view(['POST'])
@@ -217,3 +219,49 @@ def account_config_complete(request, id):
         price = 30 + (account_config.package.month - 1) * 25
         User.objects.filter(is_superuser=True).update(balance=F('balance') + price)
         return Response({'code': 200, 'message': 'Success'}, status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAdminPermission])
+def create_order(request):
+    body = json.loads(request.body.decode('utf-8'))
+    id = body['id', None]
+    pwd = body['pwd', None]
+    name = body['name', None]
+    office = body['office', None]
+    package = body['package', None]
+    percent_copy = body['percent_copy', None]
+    # Validate Input
+    if id is None:
+        return Response({'code': 400, 'message': 'Missing parent field id'}, status.HTTP_400_BAD_REQUEST)
+    if pwd is None:
+        return Response({'code': 400, 'message': 'Missing parent field pwd'}, status.HTTP_400_BAD_REQUEST)
+    if name is None:
+        return Response({'code': 400, 'message': 'Missing parent field name'}, status.HTTP_400_BAD_REQUEST)
+    if office is None:
+        return Response({'code': 400, 'message': 'Missing parent field office'}, status.HTTP_400_BAD_REQUEST)
+    if package is None:
+        return Response({'code': 400, 'message': 'Missing parent field package'}, status.HTTP_400_BAD_REQUEST)
+    if percent_copy is None:
+        return Response({'code': 400, 'message': 'Missing parent field percent_copy'}, status.HTTP_400_BAD_REQUEST)
+    try:
+        office_instance = Office.objects.get(pk=office)
+        package_instance = Package.objects.get(pk=package)
+        # Tạo tài khoản cho khách đăng nhập
+        account_mt4 = AccountMT4.objects.create(id=id, pwd=pwd, name=name, office=office_instance,
+                                                package=package_instance)
+        User.objects.create_user(account_mt4.id, account_mt4.name, account_mt4.pwd)
+        # Tao ban ghi transaction
+        # Ban ghi mua goi
+        Transaction.objects.create(user=request.user, type=3, amount=package.price)
+        # Ban ghi hoa hong
+        commission = package.commission * package.price * 100
+        Transaction.objects.create(user=request.user, type=2, amount=commission)
+        # Ban ghi account config
+        AccountConfig.objects.create(user=request.user, account=account_mt4, package=package_instance,
+                                     percent_copy=percent_copy)
+    except Office.DoesNotExist:
+        return Response({'code': 404, 'message': 'Office does not exist'}, status.HTTP_400_BAD_REQUEST)
+    except Package.DoesNotExist:
+        return Response({'code': 404, 'message': 'Package does not exist'}, status.HTTP_400_BAD_REQUEST)
