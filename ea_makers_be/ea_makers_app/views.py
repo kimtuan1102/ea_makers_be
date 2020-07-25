@@ -91,6 +91,7 @@ def transaction_approve(request, id):
                 # Cập nhật trạng thái transaction
                 transaction.status = 1
                 transaction.save()
+                return Response({'code': 200, 'message': 'Approve transaction success'})
             # Xử lý khi người dùng rút tiền
             elif transaction.type is 1:
                 # Kiểm tra tài khoản
