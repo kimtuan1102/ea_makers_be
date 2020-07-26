@@ -169,7 +169,7 @@ def ea_license(request, id):
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAdminPermission])
-def account_config_create(request, id):
+def account_config_admin_approve(request, id):
     # validate body
     if request.body is None:
         return Response({'code': 400, 'message': 'Missing body data'}, status.HTTP_400_BAD_REQUEST)
@@ -179,51 +179,71 @@ def account_config_create(request, id):
         return Response({'code': 400, 'message': 'Missing parent field'}, status.HTTP_400_BAD_REQUEST)
     else:
         # Cập nhật trạng thái và tài khoản master
-        account_config = AccountConfig.objects.get(pk=id)
-        account_config.status = 1
-        account_config.parent = AccountMT4.objects.get(pk=parent)
-        account_config.save()
-        # Tạo cache
-        exp = account_config.package.month * 30 * 24 * 3600
-        cache.set(account_config.account.id, 'xxxxx', exp);
-        return Response({'code': 200, 'message': 'Success'})
+        try:
+            account_config = AccountConfig.objects.get(pk=id)
+            account_config.status = 1
+            account_config.parent = AccountMT4.objects.get(pk=parent)
+            account_config.save()
+            # Tạo cache
+            exp = account_config.package.month * 30 * 24 * 3600
+            cache.set(account_config.account.id, 'xxxxx', exp);
+            return Response({'code': 200, 'message': 'Success'})
+        except AccountConfig.DoesNotExist:
+            return Response({'code': 400, 'message': 'Account config does not exist'}, status.HTTP_400_BAD_REQUEST)
 
 
 # Admin hủy config
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAdminPermission])
-def account_config_reject(request, id):
+def account_config_admin_reject(request, id):
     try:
         AccountConfig.objects.filter(pk=id).update(status=4)
         return Response({'code': 200, 'message': 'Success'})
     except AccountConfig.DoesNotExist:
-        return Response({'code': 404, 'message': 'Account config does not exist'}, status=status.HTTP_200_OK)
+        return Response({'code': 404, 'message': 'Account config does not exist'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Super admin xác nhận đã tạo máy
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsSuperUserPermission])
-def account_config_complete(request, id):
-    if request.body is None:
-        return Response({'code': 400, 'message': 'Missing body data'}, status.HTTP_400_BAD_REQUEST)
-    account_config = AccountConfig.objects.get(pk=id)
-    if account_config.status is not 1:
-        return Response({'code': 400, 'message': 'Status is not creating'}, status.HTTP_400_BAD_REQUEST)
-    body = json.loads(request.body.decode('utf-8'))
-    server = body['server']
-    if server is None:
-        return Response({'code': 400, 'message': 'Missing parent field'}, status.HTTP_400_BAD_REQUEST)
-    else:
-        # Cập nhật thông tin server
-        account_config.status = 2
-        account_config.server = ServerInfo.objects.get(pk=server)
-        account_config.save()
-        # Cộng tiền cho super admin
-        price = 30 + (account_config.package.month - 1) * 25
-        User.objects.filter(is_superuser=True).update(balance=F('balance') + price)
-        return Response({'code': 200, 'message': 'Success'}, status.HTTP_200_OK)
+def account_config_superadmin_approve(request, id):
+    try:
+        if request.body is None:
+            return Response({'code': 400, 'message': 'Missing body data'}, status.HTTP_400_BAD_REQUEST)
+        account_config = AccountConfig.objects.get(pk=id)
+        if account_config.status is not 1:
+            return Response({'code': 400, 'message': 'Status is not creating'}, status.HTTP_400_BAD_REQUEST)
+        body = json.loads(request.body.decode('utf-8'))
+        server = body['server']
+        if server is None:
+            return Response({'code': 400, 'message': 'Missing parent field'}, status.HTTP_400_BAD_REQUEST)
+        else:
+            # Cập nhật thông tin server
+            account_config.status = 2
+            account_config.server = ServerInfo.objects.get(pk=server)
+            account_config.save()
+            # Cộng tiền cho super admin
+            price = 30 + (account_config.package.month - 1) * 25
+            User.objects.filter(is_superuser=True).update(balance=F('balance') + price)
+            return Response({'code': 200, 'message': 'Success'}, status.HTTP_200_OK)
+    except AccountConfig.DoesNotExist:
+        return Response({'code': 404, 'message': 'Account config does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+    except ServerInfo.DoesNotExist:
+        return Response({'code': 404, 'message': 'Server info does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+# Admin hủy config
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsSuperUserPermission])
+def account_config_superadmin_reject(request, id):
+    try:
+        AccountConfig.objects.filter(pk=id).update(status=4)
+        return Response({'code': 200, 'message': 'Success'})
+    except AccountConfig.DoesNotExist:
+        return Response({'code': 404, 'message': 'Account config does not exist'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
