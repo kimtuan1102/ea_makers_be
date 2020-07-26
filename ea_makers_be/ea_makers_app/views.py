@@ -274,9 +274,9 @@ def create_order(request):
         User.objects.create_user(account_mt4.id, account_mt4.name, account_mt4.pwd)
         # Tao ban ghi transaction
         # Ban ghi mua goi
-        Transaction.objects.create(user=request.user, type=3, amount=package.price)
+        Transaction.objects.create(user=request.user, type=3, amount=package_instance.price)
         # Ban ghi hoa hong
-        commission = package.commission * package.price * 100
+        commission = package_instance.commission * package_instance.price * 100
         Transaction.objects.create(user=request.user, type=2, amount=commission)
         # Ban ghi account config
         AccountConfig.objects.create(user=request.user, account=account_mt4, package=package_instance,
