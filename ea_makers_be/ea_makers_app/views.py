@@ -78,7 +78,7 @@ class ServerInfoViewSet(viewsets.ModelViewSet):
 class OfficeViewSet(viewsets.ModelViewSet):
     queryset = Office.objects.all()
     serializer_class = OfficeSerializer
-    authentication_classes = (JWTAuthentication)
+    authentication_classes = (JWTAuthentication,)
     permission_classes = [IsAuthenticated]
 
 
