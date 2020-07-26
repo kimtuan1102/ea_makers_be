@@ -170,6 +170,9 @@ def ea_license(request, id):
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAdminPermission])
 def account_config_create(request, id):
+    # validate body
+    if request.body is None:
+        return Response({'code': 400, 'message': 'Missing body data'}, status.HTTP_400_BAD_REQUEST)
     body = json.loads(request.body.decode('utf-8'))
     parent = body['parent']
     if parent is None:
@@ -203,6 +206,8 @@ def account_config_reject(request, id):
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsSuperUserPermission])
 def account_config_complete(request, id):
+    if request.body is None:
+        return Response({'code': 400, 'message': 'Missing body data'}, status.HTTP_400_BAD_REQUEST)
     account_config = AccountConfig.objects.get(pk=id)
     if account_config.status is not 1:
         return Response({'code': 400, 'message': 'Status is not creating'}, status.HTTP_400_BAD_REQUEST)
@@ -225,6 +230,8 @@ def account_config_complete(request, id):
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAdminPermission])
 def create_order(request):
+    if request.body is None:
+        return Response({'code': 400, 'message': 'Missing body data'}, status.HTTP_400_BAD_REQUEST)
     body = json.loads(request.body.decode('utf-8'))
     id = body['id', None]
     pwd = body['pwd', None]
