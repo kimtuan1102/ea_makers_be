@@ -182,22 +182,21 @@ def account_config_admin_approve(request, id):
     if request.body is None:
         return Response({'code': 400, 'message': 'Missing body data'}, status.HTTP_400_BAD_REQUEST)
     body = json.loads(request.body.decode('utf-8'))
-    parent = body['parent']
-    if parent is None:
-        return Response({'code': 400, 'message': 'Missing parent field'}, status.HTTP_400_BAD_REQUEST)
-    else:
-        # Cập nhật trạng thái và tài khoản master
-        try:
-            account_config = AccountConfig.objects.get(pk=id)
-            account_config.status = 1
-            account_config.parent = AccountMT4.objects.get(pk=parent)
-            account_config.save()
-            # Tạo cache
-            exp = account_config.package.month * 30 * 24 * 3600
-            cache.set(account_config.account.id, 'xxxxx', exp);
-            return Response({'code': 200, 'message': 'Success'})
-        except AccountConfig.DoesNotExist:
-            return Response({'code': 400, 'message': 'Account config does not exist'}, status.HTTP_400_BAD_REQUEST)
+    # Cập nhật trạng thái và tài khoản master
+    try:
+        parent = body['parent']
+        account_config = AccountConfig.objects.get(pk=id)
+        account_config.status = 1
+        account_config.parent = AccountMT4.objects.get(pk=parent)
+        account_config.save()
+        # Tạo cache
+        exp = account_config.package.month * 30 * 24 * 3600
+        cache.set(account_config.account.id, 'xxxxx', exp);
+        return Response({'code': 200, 'message': 'Success'})
+    except AccountConfig.DoesNotExist:
+        return Response({'code': 400, 'message': 'Account config does not exist'}, status.HTTP_400_BAD_REQUEST)
+    except KeyError:
+        return Response({'code': 400, 'message': 'Missing field'}, status.HTTP_400_BAD_REQUEST)
 
 
 # Admin hủy config
@@ -260,29 +259,14 @@ def account_config_superadmin_reject(request, id):
 def create_order(request):
     if request.body is None:
         return Response({'code': 400, 'message': 'Missing body data'}, status.HTTP_400_BAD_REQUEST)
-    if request.body is None:
-        return Response({'code': 400, 'message': 'Missing body data'}, status.HTTP_400_BAD_REQUEST)
     body = json.loads(request.body.decode('utf-8'))
-    id = body['id', None]
-    pwd = body['pwd', None]
-    name = body['name', None]
-    office = body['office', None]
-    package = body['package', None]
-    percent_copy = body['percent_copy', None]
-    # Validate Input
-    if id is None:
-        return Response({'code': 400, 'message': 'Missing parent field id'}, status.HTTP_400_BAD_REQUEST)
-    if pwd is None:
-        return Response({'code': 400, 'message': 'Missing parent field pwd'}, status.HTTP_400_BAD_REQUEST)
-    if name is None:
-        return Response({'code': 400, 'message': 'Missing parent field name'}, status.HTTP_400_BAD_REQUEST)
-    if office is None:
-        return Response({'code': 400, 'message': 'Missing parent field office'}, status.HTTP_400_BAD_REQUEST)
-    if package is None:
-        return Response({'code': 400, 'message': 'Missing parent field package'}, status.HTTP_400_BAD_REQUEST)
-    if percent_copy is None:
-        return Response({'code': 400, 'message': 'Missing parent field percent_copy'}, status.HTTP_400_BAD_REQUEST)
     try:
+        id = body['id']
+        pwd = body['pwd']
+        name = body['name']
+        office = body['office']
+        package = body['package']
+        percent_copy = body['percent_copy']
         office_instance = Office.objects.get(pk=office)
         package_instance = Package.objects.get(pk=package)
         # Tạo tài khoản cho khách đăng nhập
@@ -302,3 +286,5 @@ def create_order(request):
         return Response({'code': 404, 'message': 'Office does not exist'}, status.HTTP_400_BAD_REQUEST)
     except Package.DoesNotExist:
         return Response({'code': 404, 'message': 'Package does not exist'}, status.HTTP_400_BAD_REQUEST)
+    except KeyError:
+        return Response({'code': 400, 'message': 'Missing field'}, status.HTTP_400_BAD_REQUEST)
