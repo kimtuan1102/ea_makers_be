@@ -260,6 +260,8 @@ def account_config_superadmin_reject(request, id):
 def create_order(request):
     if request.body is None:
         return Response({'code': 400, 'message': 'Missing body data'}, status.HTTP_400_BAD_REQUEST)
+    if request.body is None:
+        return Response({'code': 400, 'message': 'Missing body data'}, status.HTTP_400_BAD_REQUEST)
     body = json.loads(request.body.decode('utf-8'))
     id = body['id', None]
     pwd = body['pwd', None]
