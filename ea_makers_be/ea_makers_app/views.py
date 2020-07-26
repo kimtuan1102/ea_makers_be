@@ -281,7 +281,7 @@ def create_order(request):
         # Ban ghi account config
         AccountConfig.objects.create(user=request.user, account=account_mt4, package=package_instance,
                                      percent_copy=percent_copy)
-        return Response({'code': 200, 'message': 'Create order success'}, status.HTTP_400_BAD_REQUEST)
+        return Response({'code': 200, 'message': 'Create order success'}, status.HTTP_200_OK)
     except Office.DoesNotExist:
         return Response({'code': 404, 'message': 'Office does not exist'}, status.HTTP_400_BAD_REQUEST)
     except Package.DoesNotExist:
