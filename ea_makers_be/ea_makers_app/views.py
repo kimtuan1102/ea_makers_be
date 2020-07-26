@@ -12,7 +12,8 @@ from django.core.cache import cache
 from .models import Transaction, ServerInfo, Office, AccountMT4, AccountHistory, Package, AccountConfig, User
 from .serializers import TransactionSerializer, ServerInfoSerializer, OfficeSerializer, AccountMT4Serializer, \
     AccountHistorySerializer, PackageSerializer, AccountConfigSerializer, UserSerializer
-from .permissions import TransactionPermission, IsAdminPermission, AccountConfigPermission, IsSuperUserPermission
+from .permissions import TransactionPermission, IsAdminPermission, AccountConfigPermission, IsSuperUserPermission, \
+    IsLeadPermission
 
 
 class TransactionViewSet(viewsets.ModelViewSet):
@@ -248,7 +249,7 @@ def account_config_superadmin_reject(request, id):
 
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
-@permission_classes([IsAdminPermission])
+@permission_classes([IsLeadPermission])
 def create_order(request):
     if request.body is None:
         return Response({'code': 400, 'message': 'Missing body data'}, status.HTTP_400_BAD_REQUEST)
