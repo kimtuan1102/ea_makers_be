@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .views import TransactionViewSet, AccountMT4ViewSet, AccountHistoryViewSet, \
     AccountConfigViewSet, transaction_approve, transaction_reject, user_info, ea_license, PackageViewSet, \
     ServerInfoViewSet, account_config_admin_approve, account_config_admin_reject, create_order, \
-    account_config_superadmin_approve, account_config_superadmin_reject
+    account_config_superadmin_approve, account_config_superadmin_reject, OfficeViewSet
 
 router = DefaultRouter()
 router.register(r'transaction', TransactionViewSet)
@@ -12,6 +12,7 @@ router.register(r'account-history', AccountHistoryViewSet)
 router.register(r'account-config', AccountConfigViewSet)
 router.register(r'package', PackageViewSet)
 router.register(r'server-info', ServerInfoViewSet)
+router.register(r'office', OfficeViewSet)
 urlpatterns = [
     path('api/', include(router.urls)),
     path(r'api/transaction/approve/<int:id>', transaction_approve),

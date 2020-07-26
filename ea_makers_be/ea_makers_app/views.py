@@ -75,6 +75,13 @@ class ServerInfoViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
 
+class OfficeViewSet(viewsets.ModelViewSet):
+    queryset = Office.objects.all()
+    serializer_class = OfficeSerializer
+    authentication_classes = (JWTAuthentication)
+    permission_classes = [IsAuthenticated]
+
+
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAdminPermission])
