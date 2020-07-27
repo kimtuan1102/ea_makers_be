@@ -270,8 +270,10 @@ def create_order(request):
         office_instance = Office.objects.get(pk=office)
         package_instance = Package.objects.get(pk=package)
         # Tạo tài khoản cho khách đăng nhập
-        account_mt4 = AccountMT4.objects.create(id=id, pwd=pwd, name=name, office=office_instance,)
-        User.objects.create_user(account_mt4.id, account_mt4.name, account_mt4.pwd)
+        account_mt4, created = AccountMT4.objects.update_or_create(id=id, defaults={"pwd": pwd, "name": name,
+                                                                                    "office": office_instance})
+        if created is True:
+            User.objects.create_user(account_mt4.id, account_mt4.name, account_mt4.pwd)
         # Tao ban ghi transaction
         # Ban ghi mua goi
         Transaction.objects.create(user=request.user, type=3, amount=package_instance.price)
