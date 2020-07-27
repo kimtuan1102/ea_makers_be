@@ -1,5 +1,6 @@
 # Create your views here.
 import json
+from json import JSONDecodeError
 
 from django.db.models import F
 from rest_framework import viewsets, status
@@ -178,12 +179,9 @@ def ea_license(request, id):
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAdminPermission])
 def account_config_admin_approve(request, id):
-    # validate body
-    if request.body is None:
-        return Response({'code': 400, 'message': 'Missing body data'}, status.HTTP_400_BAD_REQUEST)
-    body = json.loads(request.body.decode('utf-8'))
     # Cập nhật trạng thái và tài khoản master
     try:
+        body = json.loads(request.body.decode('utf-8'))
         parent = body['parent']
         account_config = AccountConfig.objects.get(pk=id)
         account_config.status = 1
@@ -191,12 +189,14 @@ def account_config_admin_approve(request, id):
         account_config.save()
         # Tạo cache
         exp = account_config.package.month * 30 * 24 * 3600
-        cache.set(account_config.account.id, 'xxxxx', exp);
+        cache.set(account_config.account.id, 'xxxxx', exp)
         return Response({'code': 200, 'message': 'Success'})
     except AccountConfig.DoesNotExist:
         return Response({'code': 400, 'message': 'Account config does not exist'}, status.HTTP_400_BAD_REQUEST)
     except KeyError:
         return Response({'code': 400, 'message': 'Missing field'}, status.HTTP_400_BAD_REQUEST)
+    except JSONDecodeError:
+        return Response({'code': 400, 'message': 'Body data is invalid'}, status.HTTP_400_BAD_REQUEST)
 
 
 # Admin hủy config
@@ -217,12 +217,10 @@ def account_config_admin_reject(request, id):
 @permission_classes([IsSuperUserPermission])
 def account_config_superadmin_approve(request, id):
     try:
-        if request.body is None:
-            return Response({'code': 400, 'message': 'Missing body data'}, status.HTTP_400_BAD_REQUEST)
+        body = json.loads(request.body.decode('utf-8'))
         account_config = AccountConfig.objects.get(pk=id)
         if account_config.status is not 1:
             return Response({'code': 400, 'message': 'Status is not creating'}, status.HTTP_400_BAD_REQUEST)
-        body = json.loads(request.body.decode('utf-8'))
         server = body['server']
         if server is None:
             return Response({'code': 400, 'message': 'Missing parent field'}, status.HTTP_400_BAD_REQUEST)
@@ -239,6 +237,8 @@ def account_config_superadmin_approve(request, id):
         return Response({'code': 404, 'message': 'Account config does not exist'}, status=status.HTTP_400_BAD_REQUEST)
     except ServerInfo.DoesNotExist:
         return Response({'code': 404, 'message': 'Server info does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+    except JSONDecodeError:
+        return Response({'code': 400, 'message': 'Body data is invalid'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Admin hủy config
@@ -257,10 +257,8 @@ def account_config_superadmin_reject(request, id):
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsLeadPermission])
 def create_order(request):
-    if request.body is None:
-        return Response({'code': 400, 'message': 'Missing body data'}, status.HTTP_400_BAD_REQUEST)
-    body = json.loads(request.body.decode('utf-8'))
     try:
+        body = json.loads(request.body.decode('utf-8'))
         id = body['id']
         pwd = body['pwd']
         name = body['name']
@@ -290,3 +288,5 @@ def create_order(request):
         return Response({'code': 404, 'message': 'Package does not exist'}, status.HTTP_400_BAD_REQUEST)
     except KeyError:
         return Response({'code': 400, 'message': 'Missing field'}, status.HTTP_400_BAD_REQUEST)
+    except JSONDecodeError:
+        return Response({'code': 400, 'message': 'Body data is invalid'}, status.HTTP_400_BAD_REQUEST)
