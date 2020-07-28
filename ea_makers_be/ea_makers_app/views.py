@@ -2,6 +2,7 @@
 import json
 from json import JSONDecodeError
 
+from django.db import IntegrityError
 from django.db.models import F
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -272,12 +273,14 @@ def create_order(request):
         # Ban ghi account config
         AccountConfig.objects.create(user=request.user, account=account_mt4, package=package_instance,
                                      percent_copy=percent_copy)
-        return Response({'code': 200, 'message': 'Create order success'}, status.HTTP_200_OK)
+        return Response({'code': 200, 'message': 'Tạo order thành công'}, status.HTTP_200_OK)
     except Office.DoesNotExist:
-        return Response({'code': 404, 'message': 'Office does not exist'}, status.HTTP_400_BAD_REQUEST)
+        return Response({'code': 400, 'message': 'Thông tin văn phòng không chính xác'}, status.HTTP_400_BAD_REQUEST)
     except Package.DoesNotExist:
-        return Response({'code': 404, 'message': 'Package does not exist'}, status.HTTP_400_BAD_REQUEST)
+        return Response({'code': 404, 'message': 'Thông tin gói không chính xác'}, status.HTTP_400_BAD_REQUEST)
     except KeyError:
-        return Response({'code': 400, 'message': 'Missing field'}, status.HTTP_400_BAD_REQUEST)
+        return Response({'code': 400, 'message': 'Thiếu trường thông tin'}, status.HTTP_400_BAD_REQUEST)
     except JSONDecodeError:
-        return Response({'code': 400, 'message': 'Body data is invalid'}, status.HTTP_400_BAD_REQUEST)
+        return Response({'code': 400, 'message': 'Thiếu gói tin body'}, status.HTTP_400_BAD_REQUEST)
+    except IntegrityError:
+        return Response({'code': 400, 'message': 'Tài khoản MT4 đã tồn tại. Vui lòng chọn gia hạn.'}, status.HTTP_400_BAD_REQUEST)
