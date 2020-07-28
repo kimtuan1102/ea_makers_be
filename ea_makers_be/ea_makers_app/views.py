@@ -169,6 +169,8 @@ def account_config_admin_approve(request, id):
         body = json.loads(request.body.decode('utf-8'))
         parent = body['parent']
         account_config = AccountConfig.objects.get(pk=id)
+        if account_config.status is 1:
+            return Response({'code': 400, 'message': 'Trạng thái không hợp lệ'}, status.HTTP_400_BAD_REQUEST)
         account_config.status = 1
         account_config.parent = AccountMT4.objects.get(pk=parent)
         user = account_config.user
@@ -176,7 +178,7 @@ def account_config_admin_approve(request, id):
         price = account_config.package.price
         # Kiểm tra tài khoản
         if user.balance < price:
-            return Response({'code': 400, 'message': 'Not enough money'})
+            return Response({'code': 400, 'message': 'Tài khoản không đủ tiền thanh toán'})
         else:
             # Trừ tiền và success
             # Ban ghi mua goi
@@ -192,11 +194,12 @@ def account_config_admin_approve(request, id):
             cache.set(account_config.account.id, 'xxxxx', exp)
             return Response({'code': 200, 'message': 'Success'})
     except AccountConfig.DoesNotExist:
-        return Response({'code': 400, 'message': 'Account config does not exist'}, status.HTTP_400_BAD_REQUEST)
+        return Response({'code': 400, 'message': 'Id không hợp lệ. Dữ liệu cấu hình không tồn tại'},
+                        status.HTTP_400_BAD_REQUEST)
     except KeyError:
-        return Response({'code': 400, 'message': 'Missing field'}, status.HTTP_400_BAD_REQUEST)
+        return Response({'code': 400, 'message': 'Thiếu trường thông tin'}, status.HTTP_400_BAD_REQUEST)
     except JSONDecodeError:
-        return Response({'code': 400, 'message': 'Body data is invalid'}, status.HTTP_400_BAD_REQUEST)
+        return Response({'code': 400, 'message': 'Thiếu gói tin body'}, status.HTTP_400_BAD_REQUEST)
 
 
 # Admin hủy config
@@ -268,7 +271,7 @@ def create_order(request):
         office_instance = Office.objects.get(pk=office)
         package_instance = Package.objects.get(pk=package)
         # Tạo tài khoản cho khách đăng nhập
-        account_mt4 = AccountMT4.objects.create(id=id, pwd=pwd, name=name, office= office_instance)
+        account_mt4 = AccountMT4.objects.create(id=id, pwd=pwd, name=name, office=office_instance)
         User.objects.create_user(account_mt4.id, account_mt4.name, account_mt4.pwd)
         # Ban ghi account config
         AccountConfig.objects.create(user=request.user, account=account_mt4, package=package_instance,
@@ -283,4 +286,30 @@ def create_order(request):
     except JSONDecodeError:
         return Response({'code': 400, 'message': 'Thiếu gói tin body'}, status.HTTP_400_BAD_REQUEST)
     except IntegrityError:
-        return Response({'code': 400, 'message': 'Tài khoản MT4 đã tồn tại. Vui lòng chọn gia hạn.'}, status.HTTP_400_BAD_REQUEST)
+        return Response({'code': 400, 'message': 'Tài khoản MT4 đã tồn tại. Vui lòng chọn gia hạn.'},
+                        status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsLeadPermission])
+def extension_order(request, id):
+    try:
+        body = json.loads(request.body.decode('utf-8'))
+        package = body['package']
+        account_config = AccountConfig.objects.get(pk=id)
+        if account_config.status is not 1:
+            return Response({'code': 400, 'message': 'Trạng thái không hợp lệ'}, status.HTTP_400_BAD_REQUEST)
+        account_config.status = 1
+        package_instance = Package.objects.get(pk=package)
+        account_config.package = package_instance
+        account_config.save()
+    except KeyError:
+        return Response({'code': 400, 'message': 'Thiếu trường thông tin'}, status.HTTP_400_BAD_REQUEST)
+    except JSONDecodeError:
+        return Response({'code': 400, 'message': 'Thiếu gói tin body'}, status.HTTP_400_BAD_REQUEST)
+    except Package.DoesNotExist:
+        return Response({'code': 400, 'message': 'Gói gia hạn không hợp lệ'}, status.HTTP_400_BAD_REQUEST)
+    except AccountConfig.DoesNotExist:
+        return Response({'code': 400, 'message': 'Id không hợp lệ. Dữ liệu cấu hình không tồn tại'},
+                        status.HTTP_400_BAD_REQUEST)
