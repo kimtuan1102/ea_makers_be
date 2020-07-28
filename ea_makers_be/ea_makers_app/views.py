@@ -179,9 +179,9 @@ def account_config_admin_approve(request, id):
         else:
             # Trừ tiền và success
             # Ban ghi mua goi
-            Transaction.objects.create(user=request.user, type=3, amount=price, status=1)
+            Transaction.objects.create(user=user, type=3, amount=price, status=1)
             # Ban ghi hoa hong
-            Transaction.objects.create(user=request.user, type=2, amount=commission, status=1)
+            Transaction.objects.create(user=user, type=2, amount=commission, status=1)
             user.balance = user.balance - price + commission
             user.save()
             account_config.save()
