@@ -112,22 +112,6 @@ def transaction_approve(request, id):
                     user.balance = user.balance - transaction.amount
                     user.save()
                     return Response({'code': 200, 'message': 'Approve transaction success'})
-            # Tiền hoa hồng
-            elif transaction.type is 2:
-                # Cộng tiền và success
-                user.balance = user.balance + transaction.amount
-                user.save()
-                return Response({'code': 200, 'message': 'Approve transaction success'})
-            # Mua gói
-            elif transaction.type is 3:
-                # Kiểm tra tài khoản
-                if user.balance < transaction.amount:
-                    return Response({'code': 400, 'message': 'Not enough money'})
-                else:
-                    # Trừ tiền lead và success
-                    user.balance = user.balance - transaction.amount
-                    user.save()
-                    return Response({'code': 200, 'message': 'Approve transaction success'})
         return Response({'code': 400, 'message': 'Status is not pending or invalid transaction type'})
     except Transaction.DoesNotExist:
         return Response({'code': 404, 'message': 'transaction does not exists'}, status=status.HTTP_200_OK)
@@ -186,11 +170,26 @@ def account_config_admin_approve(request, id):
         account_config = AccountConfig.objects.get(pk=id)
         account_config.status = 1
         account_config.parent = AccountMT4.objects.get(pk=parent)
-        account_config.save()
-        # Tạo cache
-        exp = account_config.package.month * 30 * 24 * 3600
-        cache.set(account_config.account.id, 'xxxxx', exp)
-        return Response({'code': 200, 'message': 'Success'})
+        user = account_config.user
+        commission = account_config.package.commission * account_config.package.price * 100
+        price = account_config.package.price
+        # Kiểm tra tài khoản
+        if user.balance < price:
+            return Response({'code': 400, 'message': 'Not enough money'})
+        else:
+            # Trừ tiền và success
+            # Ban ghi mua goi
+            Transaction.objects.create(user=request.user, type=3, amount=price, status=1)
+            # Ban ghi hoa hong
+            Transaction.objects.create(user=request.user, type=2, amount=commission, status=1)
+            user.balance = user.balance - price + commission
+            user.save()
+            account_config.save()
+            # Tao ban ghi transaction
+            # Tạo cache
+            exp = account_config.package.month * 30 * 24 * 3600
+            cache.set(account_config.account.id, 'xxxxx', exp)
+            return Response({'code': 200, 'message': 'Success'})
     except AccountConfig.DoesNotExist:
         return Response({'code': 400, 'message': 'Account config does not exist'}, status.HTTP_400_BAD_REQUEST)
     except KeyError:
@@ -272,12 +271,6 @@ def create_order(request):
                                                                                     "office": office_instance})
         if created is True:
             User.objects.create_user(account_mt4.id, account_mt4.name, account_mt4.pwd)
-        # Tao ban ghi transaction
-        # Ban ghi mua goi
-        Transaction.objects.create(user=request.user, type=3, amount=package_instance.price)
-        # Ban ghi hoa hong
-        commission = package_instance.commission * package_instance.price * 100
-        Transaction.objects.create(user=request.user, type=2, amount=commission)
         # Ban ghi account config
         AccountConfig.objects.create(user=request.user, account=account_mt4, package=package_instance,
                                      percent_copy=percent_copy)
