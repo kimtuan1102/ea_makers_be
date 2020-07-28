@@ -268,8 +268,8 @@ def create_order(request):
         office_instance = Office.objects.get(pk=office)
         package_instance = Package.objects.get(pk=package)
         # Tạo tài khoản cho khách đăng nhập
-        account_mt4 = AccountMT4.objects.create(id=id, pwd=pwd, name=name, office= office_instance)
-        User.objects.create_user(account_mt4.id, account_mt4.name, account_mt4.pwd)
+        # account_mt4 = AccountMT4.objects.create(id=id, pwd=pwd, name=name, office= office_instance)
+        # User.objects.create_user(account_mt4.id, account_mt4.name, account_mt4.pwd)
         # Ban ghi account config
         AccountConfig.objects.create(user=request.user, account=account_mt4, package=package_instance,
                                      percent_copy=percent_copy)
