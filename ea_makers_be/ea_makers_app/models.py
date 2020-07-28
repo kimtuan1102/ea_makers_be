@@ -147,7 +147,7 @@ class Office(models.Model):
 class AccountMT4(models.Model):
     id = models.IntegerField(primary_key=True, db_column='id')
     pwd = models.CharField(max_length=255, blank=False, null=False, db_column='pwd')
-    name = models.TextField(max_length=255, blank=False, null=False, db_column='name')
+    name = models.CharField(max_length=255, blank=False, null=False, db_column='name')
     office = models.ForeignKey(Office, related_name='office', on_delete=models.CASCADE, blank=False, null=False,
                                db_column='office')
     is_parent = models.BooleanField(blank=False, null=False, default=False, db_column='is_parent')
