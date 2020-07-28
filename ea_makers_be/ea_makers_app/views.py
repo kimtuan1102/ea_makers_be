@@ -152,7 +152,7 @@ def ea_license(request, id):
                 return Response({'is_verified': True, 'percent': account.percent_copy, 'parent_id': account.parent.id},
                                 status=status.HTTP_200_OK)
             else:
-                return Response({'code': 400, 'message': 'Status not is runing'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'code': 400, 'message': 'Status not is running'}, status=status.HTTP_400_BAD_REQUEST)
 
     except AccountConfig.DoesNotExist:
         return Response({'code': 404, 'message': 'User does not exists'}, status=status.HTTP_404_NOT_FOUND)
@@ -267,10 +267,8 @@ def create_order(request):
         office_instance = Office.objects.get(pk=office)
         package_instance = Package.objects.get(pk=package)
         # Tạo tài khoản cho khách đăng nhập
-        account_mt4, created = AccountMT4.objects.update_or_create(id=id, defaults={"pwd": pwd, "name": name,
-                                                                                    "office": office_instance})
-        if created is True:
-            User.objects.create_user(account_mt4.id, account_mt4.name, account_mt4.pwd)
+        account_mt4 = AccountMT4.objects.create(id=id, pwd=pwd, name=name, office= office_instance)
+        User.objects.create_user(account_mt4.id, account_mt4.name, account_mt4.pwd)
         # Ban ghi account config
         AccountConfig.objects.create(user=request.user, account=account_mt4, package=package_instance,
                                      percent_copy=percent_copy)

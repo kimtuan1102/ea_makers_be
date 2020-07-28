@@ -199,3 +199,4 @@ class AccountConfig(models.Model):
     class Meta:
         managed = True
         db_table = 'account_config'
+        unique_together = ('account',)
