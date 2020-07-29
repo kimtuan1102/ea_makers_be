@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'ea_makers_be.ea_makers_app',
     'ea_makers_be',
-    'corsheaders'
+    'corsheaders',
+    'rest_framework_filters'
 ]
 
 MIDDLEWARE = [
@@ -56,16 +57,16 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
 ]
 SWAGGER_SETTINGS = {
-   'SECURITY_DEFINITIONS': {
-      'Basic': {
+    'SECURITY_DEFINITIONS': {
+        'Basic': {
             'type': 'basic'
-      },
-      'Bearer': {
+        },
+        'Bearer': {
             'type': 'apiKey',
             'name': 'Authorization',
             'in': 'header'
-      }
-   }
+        }
+    }
 }
 ROOT_URLCONF = 'ea_makers_be.urls'
 CORS_ORIGIN_ALLOW_ALL = True
@@ -129,6 +130,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework_filters.backends.RestFrameworkFilterBackend'
     ),
     # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     # 'PAGE_SIZE': 100,

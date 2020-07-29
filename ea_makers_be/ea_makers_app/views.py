@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.core.cache import cache
 
+from .filters import TransactionFilter
 from .models import Transaction, ServerInfo, Office, AccountMT4, AccountHistory, Package, AccountConfig, User
 from .serializers import TransactionSerializer, ServerInfoSerializer, OfficeSerializer, AccountMT4Serializer, \
     AccountHistorySerializer, PackageSerializer, AccountConfigSerializer, UserSerializer
@@ -23,6 +24,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
     serializer_class = TransactionSerializer
     permission_classes = [TransactionPermission]
     authentication_classes = (JWTAuthentication,)
+    filter_class = TransactionFilter
 
     def get_queryset(self):
         if self.request.user.is_anonymous is not True:
