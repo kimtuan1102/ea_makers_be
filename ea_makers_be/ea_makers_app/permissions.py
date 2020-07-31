@@ -22,6 +22,13 @@ class IsLeadPermission(permissions.BasePermission):
         return request.user.is_lead is True
 
 
+class IsMT4Permission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user.is_anonymous is True:
+            return False
+        return request.user.is_lead is not True and request.user.is_admin is not True and request.user.is_superuser is not True
+
+
 class TransactionPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.user.is_anonymous is True:

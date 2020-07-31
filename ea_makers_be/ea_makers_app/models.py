@@ -1,3 +1,4 @@
+import datetime
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
@@ -151,6 +152,7 @@ class AccountMT4(models.Model):
     office = models.ForeignKey(Office, related_name='office', on_delete=models.CASCADE, blank=False, null=False,
                                db_column='office')
     is_parent = models.BooleanField(blank=False, null=False, default=False, db_column='is_parent')
+    owner = models.ForeignKey(User, related_name='owner', on_delete=models.CASCADE, db_column='owner', null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True, db_column='created')
 
     class Meta:
@@ -200,3 +202,23 @@ class AccountConfig(models.Model):
         managed = True
         db_table = 'account_config'
         unique_together = ('account',)
+
+
+class CustomCache(models.Model):
+    key = models.CharField(max_length=255, db_column='key')
+    expired_time = models.DateTimeField(db_column='expired_time')
+
+    def set(self, key, exp):
+        exp_add = datetime.timedelta(seconds=exp)
+        try:
+            custom_cache = self.objects.get(key=key)
+            custom_cache.expired_time = custom_cache.expired_time + exp_add
+            custom_cache.save()
+        except CustomCache.DoesNotExist:
+            expired = datetime.datetime.now() + exp_add
+            self.objects.create(key=key, expired_time=expired)
+
+    class Meta:
+        managed = True
+        db_table = 'custom_cache'
+        unique_together = ('key',)

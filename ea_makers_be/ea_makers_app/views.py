@@ -1,4 +1,5 @@
 # Create your views here.
+import datetime
 import json
 from json import JSONDecodeError
 
@@ -9,14 +10,14 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from django.core.cache import cache
 
 from .filters import TransactionFilter
-from .models import Transaction, ServerInfo, Office, AccountMT4, AccountHistory, Package, AccountConfig, User
+from .models import Transaction, ServerInfo, Office, AccountMT4, AccountHistory, Package, AccountConfig, User, \
+    CustomCache
 from .serializers import TransactionSerializer, ServerInfoSerializer, OfficeSerializer, AccountMT4Serializer, \
     AccountHistorySerializer, PackageSerializer, AccountConfigSerializer, UserSerializer
 from .permissions import TransactionPermission, IsAdminPermission, AccountConfigPermission, IsSuperUserPermission, \
-    IsLeadPermission
+    IsLeadPermission, IsMT4Permission
 
 
 class TransactionViewSet(viewsets.ModelViewSet):
@@ -147,8 +148,11 @@ def user_info(request):
 @api_view(['GET'])
 def ea_license(request, id):
     try:
-        if cache.get(id) is None:
-            return Response({'code': 404, 'message': 'User does not exists'}, status=status.HTTP_404_NOT_FOUND)
+        key_license = id + '_license'
+        custom_cache = CustomCache.objects.get(key=key_license)
+        exp_license = custom_cache.expired_time
+        if exp_license < datetime.datetime.now():
+            return Response({'code': 401, 'message': 'License expired'}, status=status.HTTP_401_UNAUTHORIZED)
         else:
             account = AccountConfig.objects.get(account__id=id)
             if account.status is 2:
@@ -159,6 +163,8 @@ def ea_license(request, id):
 
     except AccountConfig.DoesNotExist:
         return Response({'code': 404, 'message': 'User does not exists'}, status=status.HTTP_404_NOT_FOUND)
+    except CustomCache.DoesNotExist:
+        return Response({'code': 401, 'message': 'Does not have license'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 # Admin duyệt tạo máy
@@ -191,9 +197,15 @@ def account_config_admin_approve(request, id):
             user.save()
             account_config.save()
             # Tao ban ghi transaction
-            # Tạo cache
             exp = account_config.package.month * 30 * 24 * 3600
-            cache.set(account_config.account.id, 'xxxxx', exp)
+            # Lưu thời hạn bảo lãnh
+            if account_config.package.month >= 3:
+                key_guarantee = account_config.account.id + '_guarantee'
+                exp_guarantee = 30 * 24 * 3600
+                CustomCache.set(key_guarantee, exp_guarantee)
+            # Thời hạn license
+            key_license = account_config.account.id + '_license'
+            CustomCache.set(key_license, exp)
             return Response({'code': 200, 'message': 'Success'})
     except AccountConfig.DoesNotExist:
         return Response({'code': 400, 'message': 'Id không hợp lệ. Dữ liệu cấu hình không tồn tại'},
@@ -273,8 +285,8 @@ def create_order(request):
         office_instance = Office.objects.get(pk=office)
         package_instance = Package.objects.get(pk=package)
         # Tạo tài khoản cho khách đăng nhập
-        account_mt4 = AccountMT4.objects.create(id=id, pwd=pwd, name=name, office=office_instance)
-        User.objects.create_user(account_mt4.id, account_mt4.name, account_mt4.pwd)
+        account_mt4 = AccountMT4.objects.create(id=id, pwd=pwd, name=name, office=office_instance, owner=request.user)
+        User.objects.create_user(account_mt4.id, account_mt4.name, account_mt4.pwd, )
         # Ban ghi account config
         AccountConfig.objects.create(user=request.user, account=account_mt4, package=package_instance,
                                      percent_copy=percent_copy)
@@ -314,4 +326,30 @@ def extension_order(request, id):
         return Response({'code': 400, 'message': 'Gói gia hạn không hợp lệ'}, status.HTTP_400_BAD_REQUEST)
     except AccountConfig.DoesNotExist:
         return Response({'code': 400, 'message': 'Id không hợp lệ. Dữ liệu cấu hình không tồn tại'},
+                        status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsMT4Permission])
+def license_time(request):
+    try:
+        license_key = request.user.id + '_license'
+        custom_cache = CustomCache.objects.get(key=license_key)
+        return Response({'expired_time': custom_cache.expired_time})
+    except CustomCache.DoesNotExist:
+        return Response({'code': 400, 'message': 'License không tồn tại'},
+                        status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsMT4Permission])
+def guarantee_time(request):
+    try:
+        guarantee_key = request.user.id + '_guarantee'
+        custom_cache = CustomCache.objects.get(key=guarantee_key)
+        return Response({'expired_time': custom_cache.expired_time})
+    except CustomCache.DoesNotExist:
+        return Response({'code': 400, 'message': 'Thời hạn bảo lãnh không tồn tại'},
                         status.HTTP_400_BAD_REQUEST)
