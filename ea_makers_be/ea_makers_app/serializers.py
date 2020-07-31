@@ -47,7 +47,7 @@ class AccountMT4Serializer(serializers.ModelSerializer):
 
 
 class AccountHistorySerializer(serializers.ModelSerializer):
-    account = AccountMT4Serializer()
+    owner = serializers.ReadOnlyField(source='account.owner.id', read_only=True)
 
     class Meta:
         model = AccountHistory
