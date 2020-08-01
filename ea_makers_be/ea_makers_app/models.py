@@ -152,7 +152,8 @@ class AccountMT4(models.Model):
     office = models.ForeignKey(Office, related_name='office', on_delete=models.CASCADE, blank=False, null=False,
                                db_column='office')
     is_parent = models.BooleanField(blank=False, null=False, default=False, db_column='is_parent')
-    owner = models.ForeignKey(User, related_name='owner', on_delete=models.CASCADE, db_column='owner', null=True, blank=True)
+    owner = models.ForeignKey(User, related_name='owner', on_delete=models.CASCADE, db_column='owner', null=True,
+                              blank=True)
     created = models.DateTimeField(auto_now_add=True, db_column='created')
 
     class Meta:
@@ -211,12 +212,12 @@ class CustomCache(models.Model):
     def set(self, key, exp):
         exp_add = datetime.timedelta(seconds=exp)
         try:
-            custom_cache = self.objects.get(key=key)
+            custom_cache = CustomCache.objects.get(key=key)
             custom_cache.expired_time = custom_cache.expired_time + exp_add
             custom_cache.save()
         except CustomCache.DoesNotExist:
             expired = datetime.datetime.now() + exp_add
-            self.objects.create(key=key, expired_time=expired)
+            CustomCache.objects.create(key=key, expired_time=expired)
 
     class Meta:
         managed = True
