@@ -28,5 +28,5 @@ urlpatterns = [
     path(r'api/extension-order', extension_order),
     path(r'api/license-time', license_time),
     path(r'api/guarantee-time', guarantee_time),
-    path(r'api/change-password', ChangePasswordView)
+    path(r'api/change-password', ChangePasswordView.as_view())
 ]
