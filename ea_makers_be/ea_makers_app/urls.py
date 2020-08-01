@@ -4,7 +4,7 @@ from .views import TransactionViewSet, AccountMT4ViewSet, AccountHistoryViewSet,
     AccountConfigViewSet, transaction_approve, transaction_reject, user_info, ea_license, PackageViewSet, \
     ServerInfoViewSet, account_config_admin_approve, account_config_admin_reject, create_order, \
     account_config_superadmin_approve, account_config_superadmin_reject, OfficeViewSet, extension_order, license_time, \
-    guarantee_time
+    guarantee_time, ChangePasswordView
 
 router = DefaultRouter()
 router.register(r'transaction', TransactionViewSet)
@@ -14,6 +14,7 @@ router.register(r'account-config', AccountConfigViewSet)
 router.register(r'package', PackageViewSet)
 router.register(r'server-info', ServerInfoViewSet)
 router.register(r'office', OfficeViewSet)
+router.register(r'change-password', ChangePasswordView)
 urlpatterns = [
     path('api/', include(router.urls)),
     path(r'api/transaction/approve/<int:id>', transaction_approve),
