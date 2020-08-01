@@ -338,8 +338,8 @@ def license_time(request):
         custom_cache = CustomCache.objects.get(key=license_key)
         return Response({'expired_time': custom_cache.expired_time})
     except CustomCache.DoesNotExist:
-        return Response({'code': 400, 'message': 'License không tồn tại'},
-                        status.HTTP_400_BAD_REQUEST)
+        return Response({'code': 404, 'message': 'Bạn chưa có license.'},
+                        status.HTTP_200_OK)
 
 
 @api_view(['GET'])
@@ -351,5 +351,5 @@ def guarantee_time(request):
         custom_cache = CustomCache.objects.get(key=guarantee_key)
         return Response({'expired_time': custom_cache.expired_time})
     except CustomCache.DoesNotExist:
-        return Response({'code': 400, 'message': 'Thời hạn bảo lãnh không tồn tại'},
-                        status.HTTP_400_BAD_REQUEST)
+        return Response({'code': 404, 'message': 'Bạn chưa có bảo lãnh.'},
+                        status.HTTP_200_OK)
