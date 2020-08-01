@@ -182,7 +182,7 @@ def account_config_admin_approve(request, id):
         account_config.status = 1
         account_config.parent = AccountMT4.objects.get(pk=parent)
         user = account_config.user
-        commission = account_config.package.commission * account_config.package.price * 100
+        commission = account_config.package.commission * account_config.package.price / 100
         price = account_config.package.price
         # Kiểm tra tài khoản
         if user.balance < price:
