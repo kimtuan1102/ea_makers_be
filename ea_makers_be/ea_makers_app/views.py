@@ -175,6 +175,7 @@ def ea_license(request, id):
 @permission_classes([IsAdminPermission])
 def account_config_admin_approve(request, id):
     # Cập nhật trạng thái và tài khoản master
+    custom_cache = CustomCache()
     try:
         body = json.loads(request.body.decode('utf-8'))
         parent = body['parent']
@@ -204,10 +205,10 @@ def account_config_admin_approve(request, id):
             if account_config.package.month >= 3:
                 key_guarantee = str(account_config.account.id) + '_guarantee'
                 exp_guarantee = 30 * 24 * 3600
-                CustomCache.set(CustomCache(), key_guarantee, exp_guarantee)
+                custom_cache.set(key_guarantee, exp_guarantee)
             # Thời hạn license
             key_license = str(account_config.account.id) + '_license'
-            CustomCache.set(CustomCache(), key_license, exp)
+            custom_cache.set(key_license, exp)
             return Response({'code': 200, 'message': 'Success'})
     except AccountConfig.DoesNotExist:
         return Response({'code': 400, 'message': 'Id không hợp lệ. Dữ liệu cấu hình không tồn tại'},
