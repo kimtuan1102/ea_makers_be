@@ -115,6 +115,8 @@ def transaction_approve(request, id):
                     # Trừ tiền và success
                     user.balance = user.balance - transaction.amount
                     user.save()
+                    transaction.status = 1
+                    transaction.save()
                     return Response({'code': 200, 'message': 'Approve transaction success'})
         return Response({'code': 400, 'message': 'Status is not pending or invalid transaction type'})
     except Transaction.DoesNotExist:
