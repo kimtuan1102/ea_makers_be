@@ -4,6 +4,8 @@ from django.db import models
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 
 # Choices type
+from django.utils import timezone
+
 TRANSACTION_TYPE = [
     (0, 'Deposit'),  # Nap tien
     (1, 'Withdrawal'),  # Rut tien
@@ -216,7 +218,7 @@ class CustomCache(models.Model):
             custom_cache.expired_time = custom_cache.expired_time + exp_add
             custom_cache.save()
         except CustomCache.DoesNotExist:
-            expired = datetime.datetime.now() + exp_add
+            expired = timezone.now() + exp_add
             CustomCache.objects.create(key=key, expired_time=expired)
 
     class Meta:
