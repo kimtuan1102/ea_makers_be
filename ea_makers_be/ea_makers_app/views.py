@@ -315,9 +315,9 @@ def extension_order(request, id):
         body = json.loads(request.body.decode('utf-8'))
         package = body['package']
         account_config = AccountConfig.objects.get(pk=id)
-        if account_config.status is not 1:
+        if account_config.status is not 2:
             return Response({'code': 400, 'message': 'Trạng thái không hợp lệ'}, status.HTTP_400_BAD_REQUEST)
-        account_config.status = 1
+        account_config.status = 0
         package_instance = Package.objects.get(pk=package)
         account_config.package = package_instance
         account_config.save()
