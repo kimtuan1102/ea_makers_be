@@ -148,7 +148,7 @@ def user_info(request):
 @api_view(['GET'])
 def ea_license(request, id):
     try:
-        key_license = id + '_license'
+        key_license = str(id) + '_license'
         custom_cache = CustomCache.objects.get(key=key_license)
         exp_license = custom_cache.expired_time
         if exp_license < datetime.datetime.now():
@@ -200,11 +200,11 @@ def account_config_admin_approve(request, id):
             exp = account_config.package.month * 30 * 24 * 3600
             # Lưu thời hạn bảo lãnh
             if account_config.package.month >= 3:
-                key_guarantee = account_config.account.id + '_guarantee'
+                key_guarantee = str(account_config.account.id) + '_guarantee'
                 exp_guarantee = 30 * 24 * 3600
                 CustomCache.set(key_guarantee, exp_guarantee)
             # Thời hạn license
-            key_license = account_config.account.id + '_license'
+            key_license = str(account_config.account.id) + '_license'
             CustomCache.set(key_license, exp)
             return Response({'code': 200, 'message': 'Success'})
     except AccountConfig.DoesNotExist:
@@ -334,7 +334,7 @@ def extension_order(request, id):
 @permission_classes([IsMT4Permission])
 def license_time(request):
     try:
-        license_key = request.user.id + '_license'
+        license_key = str(request.user.id) + '_license'
         custom_cache = CustomCache.objects.get(key=license_key)
         return Response({'expired_time': custom_cache.expired_time})
     except CustomCache.DoesNotExist:
@@ -347,7 +347,7 @@ def license_time(request):
 @permission_classes([IsMT4Permission])
 def guarantee_time(request):
     try:
-        guarantee_key = request.user.id + '_guarantee'
+        guarantee_key = str(request.user.id)+ '_guarantee'
         custom_cache = CustomCache.objects.get(key=guarantee_key)
         return Response({'expired_time': custom_cache.expired_time})
     except CustomCache.DoesNotExist:
