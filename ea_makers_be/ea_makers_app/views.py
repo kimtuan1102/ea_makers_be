@@ -204,10 +204,10 @@ def account_config_admin_approve(request, id):
             if account_config.package.month >= 3:
                 key_guarantee = str(account_config.account.id) + '_guarantee'
                 exp_guarantee = 30 * 24 * 3600
-                CustomCache.set(key_guarantee, exp_guarantee)
+                CustomCache.set(CustomCache(), key_guarantee, exp_guarantee)
             # Thời hạn license
             key_license = str(account_config.account.id) + '_license'
-            CustomCache.set(key_license, exp)
+            CustomCache.set(CustomCache(), key_license, exp)
             return Response({'code': 200, 'message': 'Success'})
     except AccountConfig.DoesNotExist:
         return Response({'code': 400, 'message': 'Id không hợp lệ. Dữ liệu cấu hình không tồn tại'},
@@ -349,7 +349,7 @@ def license_time(request):
 @permission_classes([IsMT4Permission])
 def guarantee_time(request):
     try:
-        guarantee_key = str(request.user.id)+ '_guarantee'
+        guarantee_key = str(request.user.id) + '_guarantee'
         custom_cache = CustomCache.objects.get(key=guarantee_key)
         return Response({'expired_time': custom_cache.expired_time})
     except CustomCache.DoesNotExist:
