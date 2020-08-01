@@ -14,7 +14,6 @@ router.register(r'account-config', AccountConfigViewSet)
 router.register(r'package', PackageViewSet)
 router.register(r'server-info', ServerInfoViewSet)
 router.register(r'office', OfficeViewSet)
-router.register(r'change-password', ChangePasswordView)
 urlpatterns = [
     path('api/', include(router.urls)),
     path(r'api/transaction/approve/<int:id>', transaction_approve),
@@ -28,5 +27,6 @@ urlpatterns = [
     path(r'api/create-order', create_order),
     path(r'api/extension-order', extension_order),
     path(r'api/license-time', license_time),
-    path(r'api/guarantee-time', guarantee_time)
+    path(r'api/guarantee-time', guarantee_time),
+    path(r'api/change-password', ChangePasswordView)
 ]
