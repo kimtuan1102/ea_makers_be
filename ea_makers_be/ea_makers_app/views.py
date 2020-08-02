@@ -315,13 +315,29 @@ def extension_order(request, id):
     try:
         body = json.loads(request.body.decode('utf-8'))
         package = body['package']
+        package_instance = Package.objects.get(pk=package)
+        price = package_instance.price
+        commission = package_instance.commission * package_instance.price / 100
         account_config = AccountConfig.objects.get(pk=id)
+        user = account_config.user
         if account_config.status is not 2:
             return Response({'code': 400, 'message': 'Trạng thái không hợp lệ'}, status.HTTP_400_BAD_REQUEST)
-        account_config.status = 0
-        package_instance = Package.objects.get(pk=package)
+        # Kiểm tra tài khoản
+        if user.balance < price:
+            return Response({'code': 400, 'message': 'Tài khoản không đủ tiền thanh toán'})
+        # Trừ tiền lead và success
+        # Ban ghi mua goi
+        Transaction.objects.create(user=user, type=3, amount=price, status=1)
+        # Ban ghi hoa hong
+        Transaction.objects.create(user=user, type=2, amount=commission, status=1)
+        user.balance = user.balance - price + commission
+        user.save()
+        money = 30 + (package_instance.month - 1) * 25
+        # Cộng tiền cho superuser
+        User.objects.filter(is_superuser=True).update(balance=F('balance') + money)
         account_config.package = package_instance
         account_config.save()
+        return Response({'code': 200, 'message': 'Gia hạn thành công.'}, status.HTTP_200_OK)
     except KeyError:
         return Response({'code': 400, 'message': 'Thiếu trường thông tin'}, status.HTTP_400_BAD_REQUEST)
     except JSONDecodeError:
