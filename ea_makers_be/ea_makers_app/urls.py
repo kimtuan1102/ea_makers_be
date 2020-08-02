@@ -25,7 +25,7 @@ urlpatterns = [
     path(r'api/account-config/super-admin-reject/<int:id>', account_config_superadmin_reject),
     path(r'api/account-config/superadmin-approve/<int:id>', account_config_superadmin_approve),
     path(r'api/create-order', create_order),
-    path(r'api/extension-order', extension_order),
+    path(r'api/extension-order/<int:id>', extension_order),
     path(r'api/license-time', license_time),
     path(r'api/guarantee-time', guarantee_time),
     path(r'api/change-password', ChangePasswordView.as_view())
