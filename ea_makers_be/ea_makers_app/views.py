@@ -54,7 +54,7 @@ class AccountConfigViewSet(viewsets.ModelViewSet):
     queryset = AccountConfig.objects.all()
     serializer_class = AccountConfigSerializer
     authentication_classes = (JWTAuthentication,)
-    permission_classes = [AccountConfigPermission]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         if self.request.user.is_anonymous is not True:
