@@ -312,6 +312,7 @@ def create_order(request):
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsLeadPermission])
 def extension_order(request, id):
+    custom_cache = CustomCache()
     try:
         body = json.loads(request.body.decode('utf-8'))
         package = body['package']
@@ -337,6 +338,16 @@ def extension_order(request, id):
         User.objects.filter(is_superuser=True).update(balance=F('balance') + money)
         account_config.package = package_instance
         account_config.save()
+        # Cập nhật license
+        exp = package_instance.month * 30 * 24 * 3600
+        # Lưu thời hạn bảo lãnh
+        if package_instance.month >= 3:
+            key_guarantee = str(account_config.account.id) + '_guarantee'
+            exp_guarantee = 30 * 24 * 3600
+            custom_cache.set(key_guarantee, exp_guarantee)
+        # Thời hạn license
+        key_license = str(account_config.account.id) + '_license'
+        custom_cache.set(key_license, exp)
         return Response({'code': 200, 'message': 'Gia hạn thành công.'}, status.HTTP_200_OK)
     except KeyError:
         return Response({'code': 400, 'message': 'Thiếu trường thông tin'}, status.HTTP_400_BAD_REQUEST)
