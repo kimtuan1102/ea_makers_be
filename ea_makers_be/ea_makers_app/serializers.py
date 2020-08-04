@@ -63,7 +63,7 @@ class PackageSerializer(serializers.ModelSerializer):
 class AccountConfigSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source='user.id')
     server = ServerInfoSerializer(read_only=True)
-    account = AccountMT4Serializer()
+    account_details = AccountMT4Serializer(source='account', read_only=True)
 
     class Meta:
         model = AccountConfig
