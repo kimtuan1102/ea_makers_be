@@ -1,5 +1,5 @@
 # Create your views here.
-import datetime
+from django.utils import timezone
 import json
 from json import JSONDecodeError
 
@@ -154,7 +154,7 @@ def ea_license(request, id):
         key_license = str(id) + '_license'
         custom_cache = CustomCache.objects.get(key=key_license)
         exp_license = custom_cache.expired_time
-        if exp_license < datetime.datetime.now():
+        if exp_license < timezone.now():
             return Response({'code': 401, 'message': 'License expired'}, status=status.HTTP_401_UNAUTHORIZED)
         else:
             account = AccountConfig.objects.get(account__id=id)
