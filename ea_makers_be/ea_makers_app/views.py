@@ -365,7 +365,7 @@ def extension_order(request, id):
 @permission_classes([IsMT4Permission])
 def license_time(request):
     try:
-        license_key = str(request.user.id) + '_license'
+        license_key = request.user.username + '_license'
         custom_cache = CustomCache.objects.get(key=license_key)
         return Response({'expired_time': custom_cache.expired_time})
     except CustomCache.DoesNotExist:
@@ -378,7 +378,7 @@ def license_time(request):
 @permission_classes([IsMT4Permission])
 def guarantee_time(request):
     try:
-        guarantee_key = str(request.user.id) + '_guarantee'
+        guarantee_key = request.user.username + '_guarantee'
         custom_cache = CustomCache.objects.get(key=guarantee_key)
         return Response({'expired_time': custom_cache.expired_time})
     except CustomCache.DoesNotExist:
