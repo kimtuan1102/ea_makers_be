@@ -35,7 +35,7 @@ class TransactionSerializer(serializers.ModelSerializer):
             if zalo_id is not None and type != "" and path != "":
                 print("Sent message to zalo")
                 res = zalo_oa.sent_text_message(zalo_id, message)
-                print(res.text)
+                print(res.request)
         return transaction
 
     class Meta:
