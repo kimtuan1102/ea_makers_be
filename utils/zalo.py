@@ -17,4 +17,4 @@ class ZaloOA():
                 "text": message
             }
         }
-        return requests.post(endpoint, body)
+        return requests.post(endpoint, json=body)
