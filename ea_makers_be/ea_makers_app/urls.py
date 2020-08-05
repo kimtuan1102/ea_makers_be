@@ -15,7 +15,7 @@ router.register(r'package', PackageViewSet)
 router.register(r'server-info', ServerInfoViewSet)
 router.register(r'office', OfficeViewSet)
 urlpatterns = [
-    path('api', include(router.urls)),
+    path('api/', include(router.urls)),
     path(r'api/transaction/approve/<int:id>', transaction_approve),
     path(r'api/transaction/reject/<int:id>', transaction_reject),
     path(r'api/user-info', user_info),
