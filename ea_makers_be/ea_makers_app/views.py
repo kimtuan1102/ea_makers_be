@@ -181,7 +181,7 @@ def account_config_admin_approve(request, id):
         body = json.loads(request.body.decode('utf-8'))
         parent = body['parent']
         account_config = AccountConfig.objects.get(pk=id)
-        if account_config.status is 1:
+        if account_config.status is not 0:
             return Response({'code': 400, 'message': 'Trạng thái không hợp lệ'}, status.HTTP_400_BAD_REQUEST)
         account_config.status = 1
         account_config.parent = AccountMT4.objects.get(pk=parent)
@@ -190,7 +190,7 @@ def account_config_admin_approve(request, id):
         price = account_config.package.price
         # Kiểm tra tài khoản
         if user.balance < price:
-            return Response({'code': 400, 'message': 'Tài khoản không đủ tiền thanh toán'})
+            return Response({'code': 400, 'message': 'Tài khoản lead không đủ tiền thanh toán'})
         else:
             # Trừ tiền và success
             # Ban ghi mua goi
