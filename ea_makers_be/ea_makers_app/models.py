@@ -11,6 +11,7 @@ TRANSACTION_TYPE = [
     (1, 'Withdrawal'),  # Rut tien
     (2, 'Commission'),  # Tien hoa hong
     (3, 'OrderPackage'),  # Mua goi
+    (4, 'Refund'), # Hoàn tiền
 ]
 TRANSACTION_STATUS = [
     (0, 'Pending'),  # Cho duyet

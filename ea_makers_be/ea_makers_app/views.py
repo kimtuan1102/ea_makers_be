@@ -262,18 +262,6 @@ def account_config_superadmin_approve(request, id):
         return Response({'code': 400, 'message': 'Body data is invalid'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# Admin hủy config
-@api_view(['POST'])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsSuperUserPermission])
-def account_config_superadmin_reject(request, id):
-    try:
-        AccountConfig.objects.filter(pk=id).update(status=4)
-        return Response({'code': 200, 'message': 'Success'})
-    except AccountConfig.DoesNotExist:
-        return Response({'code': 404, 'message': 'Account config does not exist'}, status=status.HTTP_400_BAD_REQUEST)
-
-
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsLeadPermission])
@@ -298,7 +286,7 @@ def create_order(request):
         # Gửi tin nhắn zalo cho admin
         admins = User.objects.filter(is_admin=True)
         message = "Tài khoản Lead {} vừa gửi yêu cầu {}. Vui lòng vào kiểm tra tại https://eamakers.com/admin/dieukhienhethong/{}".format(
-            request.user.fullname, "Mua bot" , "duyetmuabot")
+            request.user.fullname, "Mua bot", "duyetmuabot")
         for admin in admins:
             zalo_id = admin.zalo_id
             if zalo_id is not None:
