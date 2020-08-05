@@ -33,7 +33,9 @@ class TransactionSerializer(serializers.ModelSerializer):
         for admin in admins:
             zalo_id = admin.zalo_id
             if zalo_id is not None and type != "" and path != "":
-                zalo_oa.sent_tex_message(zalo_id, message)
+                print("Sent message to zalo")
+                res = zalo_oa.sent_text_message(zalo_id, message)
+                print(res.text)
         return transaction
 
     class Meta:

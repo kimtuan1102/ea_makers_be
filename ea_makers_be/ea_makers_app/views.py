@@ -302,7 +302,9 @@ def create_order(request):
         for admin in admins:
             zalo_id = admin.zalo_id
             if zalo_id is not None:
-                zalo_oa.sent_tex_message(zalo_id, message)
+                print("Sent message to zalo")
+                res = zalo_oa.sent_text_message(zalo_id, message)
+                print(res.text)
         return Response({'code': 200, 'message': 'Tạo order thành công'}, status.HTTP_200_OK)
     except Office.DoesNotExist:
         return Response({'code': 400, 'message': 'Thông tin văn phòng không chính xác'}, status.HTTP_400_BAD_REQUEST)

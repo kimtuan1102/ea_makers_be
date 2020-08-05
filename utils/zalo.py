@@ -7,7 +7,7 @@ class ZaloOA():
         self.access_token = os.getenv('ZALO_ACCESS_TOKEN')
         self.zalo_api_end_point = os.getenv('ZALO_API_ENPOINT')
 
-    def sent_tex_message(self, uid, message):
+    def sent_text_message(self, uid, message):
         endpoint = "{}/{}?access_token={}".format(self.zalo_api_end_point, "message", self.access_token)
         body = {
             "recipient": {
