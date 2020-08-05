@@ -84,6 +84,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_admin = models.BooleanField(default=False, null=False)
     is_lead = models.BooleanField(default=False, null=False)
     is_active = models.BooleanField(default=True)
+    zalo_id = models.CharField(max_length=255, blank=True, null=True, db_column='zalo_id')
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['fullname']
 
@@ -225,3 +226,4 @@ class CustomCache(models.Model):
         managed = True
         db_table = 'custom_cache'
         unique_together = ('key',)
+

@@ -11,7 +11,7 @@ from rest_framework.generics import UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
-
+from utils.zalo import ZaloOA
 from .filters import TransactionFilter
 from .models import Transaction, ServerInfo, Office, AccountMT4, AccountHistory, Package, AccountConfig, User, \
     CustomCache
@@ -279,6 +279,7 @@ def account_config_superadmin_reject(request, id):
 @permission_classes([IsLeadPermission])
 def create_order(request):
     try:
+        zalo_oa = ZaloOA()
         body = json.loads(request.body.decode('utf-8'))
         id = body['id']
         pwd = body['pwd']
@@ -294,6 +295,14 @@ def create_order(request):
         # Ban ghi account config
         AccountConfig.objects.create(user=request.user, account=account_mt4, package=package_instance,
                                      percent_copy=percent_copy)
+        # Gửi tin nhắn zalo cho admin
+        admins = User.objects.filter(is_admin=True)
+        message = "Tài khoản Lead {} vừa gửi yêu cầu {}. Vui lòng vào kiểm tra tại https://eamakers.com/admin/dieukhienhethong/{}".format(
+            request.user.fullname, "Mua bot" , "duyetmuabot")
+        for admin in admins:
+            zalo_id = admin.zalo_id
+            if zalo_id is not None:
+                zalo_oa.sent_tex_message(zalo_id, message)
         return Response({'code': 200, 'message': 'Tạo order thành công'}, status.HTTP_200_OK)
     except Office.DoesNotExist:
         return Response({'code': 400, 'message': 'Thông tin văn phòng không chính xác'}, status.HTTP_400_BAD_REQUEST)

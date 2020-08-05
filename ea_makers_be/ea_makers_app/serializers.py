@@ -1,5 +1,5 @@
 from rest_framework import serializers
-
+from utils.zalo import ZaloOA
 from ea_makers_be.ea_makers_app.models import User, Transaction, ServerInfo, Office, AccountMT4, AccountHistory, \
     Package, AccountConfig
 
@@ -14,6 +14,27 @@ class UserSerializer(serializers.ModelSerializer):
 class TransactionSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source='user.id')
     status = serializers.ReadOnlyField()
+
+    def create(self, validated_data):
+        zalo_oa = ZaloOA()
+        transaction = Transaction.objects.create(**validated_data)
+        type = ""
+        path = ""
+        if transaction.type is 0:
+            path = "duyetnaptien"
+            type = "Nạp tiền"
+        elif transaction.type is 1:
+            path = "duyetruttien"
+            type = "Rút tiền"
+        message = "Tài khoản Lead {} vừa gửi yêu cầu {}. Vui lòng vào kiểm tra tại https://eamakers.com/admin/dieukhienhethong/{}".format(
+            transaction.user.fullname, type, path)
+        # Gui Tin nhan cho Admin
+        admins = User.objects.filter(is_admin=True)
+        for admin in admins:
+            zalo_id = admin.zalo_id
+            if zalo_id is not None and type != "" and path != "":
+                zalo_oa.sent_tex_message(zalo_id, message)
+        return transaction
 
     class Meta:
         model = Transaction
