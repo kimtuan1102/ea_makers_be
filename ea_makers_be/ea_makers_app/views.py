@@ -220,18 +220,6 @@ def account_config_admin_approve(request, id):
         return Response({'code': 400, 'message': 'Thiếu gói tin body'}, status.HTTP_400_BAD_REQUEST)
 
 
-# Admin hủy config
-@api_view(['POST'])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAdminPermission])
-def account_config_admin_reject(request, id):
-    try:
-        AccountConfig.objects.filter(pk=id).update(status=4)
-        return Response({'code': 200, 'message': 'Success'})
-    except AccountConfig.DoesNotExist:
-        return Response({'code': 404, 'message': 'Account config does not exist'}, status=status.HTTP_400_BAD_REQUEST)
-
-
 # Super admin xác nhận đã tạo máy
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])

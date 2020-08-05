@@ -30,8 +30,7 @@ ACCOUNT_CONFIG_STATUS = [
     (0, 'Wait for creation'),
     (1, 'Creating'),
     (2, 'Running'),
-    (3, 'Paused'),
-    (4, 'Rejected')
+    (3, 'Paused')
 ]
 PACKAGE_TYPE = [
     (1, '1 month'),
