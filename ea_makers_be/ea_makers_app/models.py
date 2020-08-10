@@ -207,7 +207,7 @@ class AccountConfig(models.Model):
 
     @property
     def has_error(self):
-        alive = cache.get(self.id)
+        alive = cache.get(self.account.id)
         if alive is not None:
             return False
         else:
