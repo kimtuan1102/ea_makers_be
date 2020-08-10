@@ -142,6 +142,9 @@ class Office(models.Model):
     created = models.DateTimeField(auto_now_add=True, db_column='created')
     updated = models.DateTimeField(auto_now=True, db_column='updated')
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         managed = True
         db_table = 'office'
