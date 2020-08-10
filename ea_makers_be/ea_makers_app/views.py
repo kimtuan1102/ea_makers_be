@@ -19,6 +19,7 @@ from .serializers import TransactionSerializer, ServerInfoSerializer, OfficeSeri
     AccountHistorySerializer, PackageSerializer, AccountConfigSerializer, UserSerializer, ChangePasswordSerializer
 from .permissions import TransactionPermission, IsAdminPermission, AccountConfigPermission, IsSuperUserPermission, \
     IsLeadPermission, IsMT4Permission
+from django.core.cache import cache
 
 
 class TransactionViewSet(viewsets.ModelViewSet):
@@ -159,6 +160,8 @@ def ea_license(request, id):
         else:
             account = AccountConfig.objects.get(account__id=id)
             if account.status is 2:
+                # alive
+                cache.set(id, 'alive', 10 * 60)
                 return Response({'is_verified': True, 'percent': account.percent_copy, 'parent_id': account.parent.id},
                                 status=status.HTTP_200_OK)
             else:

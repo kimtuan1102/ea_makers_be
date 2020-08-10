@@ -2,6 +2,7 @@ import datetime
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
+from django.core.cache import cache
 
 # Choices type
 from django.utils import timezone
@@ -203,6 +204,14 @@ class AccountConfig(models.Model):
                                db_column='server')
     created = models.DateTimeField(auto_now_add=True, db_column='created')
     updated = models.DateTimeField(auto_now=True, db_column='updated')
+
+    @property
+    def has_error(self):
+        alive = cache.get(self.id)
+        if alive is not None:
+            return False
+        else:
+            return True
 
     class Meta:
         managed = True

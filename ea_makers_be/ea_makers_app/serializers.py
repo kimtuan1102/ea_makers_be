@@ -87,6 +87,7 @@ class AccountConfigSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source='user.id')
     server = ServerInfoSerializer(read_only=True)
     account_details = AccountMT4Serializer(source='account', read_only=True)
+    has_error = serializers.ReadOnlyField(source='has_error')
 
     class Meta:
         model = AccountConfig
