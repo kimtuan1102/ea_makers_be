@@ -208,10 +208,10 @@ class AccountConfig(models.Model):
     @property
     def has_error(self):
         alive = cache.get(self.account.id)
-        if alive is not None:
-            return False
-        else:
+        if alive is None and self.status is 2:
             return True
+        else:
+            return False
 
     class Meta:
         managed = True
