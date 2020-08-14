@@ -242,7 +242,7 @@ def account_config_superadmin_approve(request, id):
             account_config.server = ServerInfo.objects.get(pk=server)
             account_config.save()
             # Cộng tiền cho super admin
-            price = 30 + (account_config.package.month - 1) * 25
+            price = 10 + (account_config.package.month - 1) * 10
             User.objects.filter(is_superuser=True).update(balance=F('balance') + price)
             return Response({'code': 200, 'message': 'Success'}, status.HTTP_200_OK)
     except AccountConfig.DoesNotExist:
