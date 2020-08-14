@@ -161,7 +161,6 @@ def ea_license(request, id):
             account = AccountConfig.objects.get(account__id=id)
             if account.status is 2:
                 # alive
-                print("====Update cache ====", id)
                 cache.set(str(id), 'alive', 3 * 60)
                 return Response({'is_verified': True, 'percent': account.percent_copy, 'parent_id': account.parent.id},
                                 status=status.HTTP_200_OK)
