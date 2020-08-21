@@ -181,6 +181,7 @@ def account_config_admin_approve(request, id):
     # Cập nhật trạng thái và tài khoản master
     custom_cache = CustomCache()
     try:
+        zalo_oa = ZaloOA()
         body = json.loads(request.body.decode('utf-8'))
         parent = body['parent']
         account_config = AccountConfig.objects.get(pk=id)
@@ -213,6 +214,15 @@ def account_config_admin_approve(request, id):
             # Thời hạn license
             key_license = str(account_config.account.id) + '_license'
             custom_cache.set(key_license, exp)
+            # Thông báo tạo máy
+            superadmins = User.objects.filter(is_superuser=True)
+            message = "Tài khoản Admin vừa gửi yêu cầu {}. Vui lòng vào kiểm tra tại https://eamakers.com/superadmin/quantri/hethong".format("Tạo máy")
+            for superadmin in superadmins:
+                zalo_id = superadmin.zalo_id
+                if zalo_id is not None:
+                    print("Sent message to zalo")
+                    res = zalo_oa.sent_text_message(zalo_id, message)
+                    print(res.text)
             return Response({'code': 200, 'message': 'Success'})
     except AccountConfig.DoesNotExist:
         return Response({'code': 400, 'message': 'Id không hợp lệ. Dữ liệu cấu hình không tồn tại'},
