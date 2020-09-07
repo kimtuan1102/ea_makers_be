@@ -164,7 +164,7 @@ class AccountMT4(models.Model):
 
     @property
     def license_time(self):
-        license_key = self.id + '_license'
+        license_key = str(self.id) + '_license'
         custom_cache = CustomCache.objects.get(key=license_key)
         license_time = custom_cache.expired_time
         return license_time
