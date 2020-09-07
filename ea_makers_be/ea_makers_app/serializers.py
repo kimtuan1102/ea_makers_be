@@ -26,7 +26,7 @@ class TransactionSerializer(serializers.ModelSerializer):
         elif transaction.type is 1:
             path = "duyetruttien"
             type = "Rút tiền"
-        message = "Tài khoản Lead {} vừa gửi yêu cầu {}. Vui lòng vào kiểm tra tại https://eamakers.com/admin/dieukhienhethong/{}".format(
+        message = "Tài khoản {} vừa gửi yêu cầu {}. Vui lòng vào kiểm tra tại https://eamakers.com/admin/dieukhienhethong/{}".format(
             transaction.user.fullname, type, path)
         # Gui Tin nhan cho Admin
         admins = User.objects.filter(is_admin=True)
@@ -57,7 +57,7 @@ class OfficeSerializer(serializers.ModelSerializer):
 
 class AccountMT4Serializer(serializers.ModelSerializer):
     is_parent = serializers.ReadOnlyField()
-
+    license_time = serializers.ReadOnlyField()
     def create(self, validated_data):
         # Tạo tài khoản cho khách đăng nhập
         account_mt4 = AccountMT4.objects.create(**validated_data)

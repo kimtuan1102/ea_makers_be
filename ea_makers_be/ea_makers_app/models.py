@@ -162,6 +162,13 @@ class AccountMT4(models.Model):
                               blank=True)
     created = models.DateTimeField(auto_now_add=True, db_column='created')
 
+    @property
+    def license_time(self):
+        license_key = self.id + '_license'
+        custom_cache = CustomCache.objects.get(key=license_key)
+        license_time = custom_cache.expired_time
+        return license_time
+
     class Meta:
         managed = True
         db_table = 'account_mt4'
