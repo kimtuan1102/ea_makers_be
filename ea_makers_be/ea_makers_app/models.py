@@ -207,6 +207,7 @@ class AccountConfig(models.Model):
     status = models.IntegerField(choices=ACCOUNT_CONFIG_STATUS, db_column='status', default=0)
     package = models.ForeignKey(Package, on_delete=models.CASCADE, related_name='package', db_column='package')
     percent_copy = models.FloatField(blank=False, null=False, default=1, db_column='percent_copy')
+    is_gap = models.BooleanField(blank=False, null=False, default=False, db_column='is_gap')
     server = models.ForeignKey(ServerInfo, related_name='server', on_delete=models.DO_NOTHING, blank=True, null=True,
                                db_column='server')
     created = models.DateTimeField(auto_now_add=True, db_column='created')
