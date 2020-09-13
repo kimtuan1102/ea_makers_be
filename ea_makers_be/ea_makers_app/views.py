@@ -162,7 +162,8 @@ def ea_license(request, id):
             if account.status is 2:
                 # alive
                 cache.set(str(id), 'alive', 3 * 60)
-                return Response({'is_verified': True, 'percent': account.percent_copy, 'parent_id': account.parent.id},
+                return Response({'is_verified': True, 'percent': account.percent_copy, 'parent_id': account.parent.id,
+                                 'is_gap': account.is_gap},
                                 status=status.HTTP_200_OK)
             else:
                 return Response({'code': 400, 'message': 'Status not is running'}, status=status.HTTP_400_BAD_REQUEST)
@@ -216,7 +217,8 @@ def account_config_admin_approve(request, id):
             custom_cache.set(key_license, exp)
             # Thông báo tạo máy
             superadmins = User.objects.filter(is_superuser=True)
-            message = "Tài khoản Admin vừa gửi yêu cầu {}. Vui lòng vào kiểm tra tại https://eamakers.com/superadmin/quantri/hethong".format("Tạo máy")
+            message = "Tài khoản Admin vừa gửi yêu cầu {}. Vui lòng vào kiểm tra tại https://eamakers.com/superadmin/quantri/hethong".format(
+                "Tạo máy")
             for superadmin in superadmins:
                 zalo_id = superadmin.zalo_id
                 if zalo_id is not None:
