@@ -199,7 +199,8 @@ def account_config_admin_approve(request, id):
         else:
             # Trừ tiền và success
             # Ban ghi mua goi
-            Transaction.objects.create(user=user, type=3, amount=price, status=1)
+            extra_info = {'account_mt4': account_config.account.id, 'month': account_config.package.month}
+            Transaction.objects.create(user=user, type=3, amount=price, status=1, extra_info=json.dumps(extra_info))
             # Ban ghi hoa hong
             Transaction.objects.create(user=user, type=2, amount=commission, status=1)
             user.balance = user.balance - price + commission
@@ -329,8 +330,9 @@ def extension_order(request, id):
         if user.balance < price:
             return Response({'code': 400, 'message': 'Tài khoản không đủ tiền thanh toán'})
         # Trừ tiền lead và success
-        # Ban ghi mua goi
-        Transaction.objects.create(user=user, type=3, amount=price, status=1)
+        # Ban ghi gia han
+        extra_info = {'account_mt4': account_config.account.id, 'month': package_instance.month}
+        Transaction.objects.create(user=user, type=4, amount=price, status=1, extra_info=json.dumps(extra_info))
         # Ban ghi hoa hong
         Transaction.objects.create(user=user, type=2, amount=commission, status=1)
         user.balance = user.balance - price + commission
