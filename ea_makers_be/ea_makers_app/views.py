@@ -190,6 +190,7 @@ def account_config_admin_approve(request, id):
             return Response({'code': 400, 'message': 'Trạng thái không hợp lệ'}, status.HTTP_400_BAD_REQUEST)
         account_config.status = 1
         account_config.parent = AccountMT4.objects.get(pk=parent)
+        account_config.license_start_time = timezone.now()
         user = account_config.user
         commission = account_config.package.commission * account_config.package.price / 100
         price = account_config.package.price

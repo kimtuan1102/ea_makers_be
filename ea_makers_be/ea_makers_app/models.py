@@ -211,6 +211,7 @@ class AccountConfig(models.Model):
     is_gap = models.BooleanField(blank=False, null=False, default=False, db_column='is_gap')
     server = models.ForeignKey(ServerInfo, related_name='server', on_delete=models.DO_NOTHING, blank=True, null=True,
                                db_column='server')
+    license_start_time = models.DateTimeField(db_column='license_start_time', blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, db_column='created')
     updated = models.DateTimeField(auto_now=True, db_column='updated')
 
